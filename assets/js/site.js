@@ -197,6 +197,72 @@ document.querySelectorAll('.work__shot video').forEach((v) => {
   }, { threshold: 0.35 }).observe(v);
 });
 
+/* ---------- Carousel: arrows, dots, swipe and a gentle auto-advance ----------
+   A slide with a video stays until the video ends; a picture stays for a few seconds.
+   It waits while the pointer or focus is on it, or while it is off screen, and never moves by itself when motion is unwelcome. */
+document.querySelectorAll('[data-carousel]').forEach((root) => {
+  const track = root.querySelector('.carousel__track');
+  const slides = [...track.children];
+  const dots = [...root.querySelectorAll('.carousel__dot')];
+  const STILL = 7000;
+  let index = 0, timer = 0, inView = false, held = false;
+
+  const videoOf = (i) => slides[i].querySelector('video');
+
+  function schedule() {
+    clearTimeout(timer);
+    if (reduceMotion || !inView) return;
+    const v = videoOf(index);
+    if (v) { v.play().catch(() => {}); return; }
+    timer = setTimeout(() => (held ? schedule() : go(index + 1)), STILL);
+  }
+
+  function go(n) {
+    index = (n + slides.length) % slides.length;
+    track.style.transform = `translateX(${-100 * index}%)`;
+    slides.forEach((s, i) => { const on = i === index; s.inert = !on; s.setAttribute('aria-hidden', String(!on)); });
+    dots.forEach((d, i) => d.setAttribute('aria-current', String(i === index)));
+    slides.forEach((s, i) => { const v = videoOf(i); if (v && i !== index) { v.pause(); v.currentTime = 0; } });
+    schedule();
+  }
+
+  slides.forEach((s, i) => {
+    const v = videoOf(i);
+    if (v) v.addEventListener('ended', () => { if (held || !inView) { v.currentTime = 0; v.play().catch(() => {}); } else go(index + 1); });
+  });
+
+  root.querySelector('.carousel__arrow--prev').addEventListener('click', () => go(index - 1));
+  root.querySelector('.carousel__arrow--next').addEventListener('click', () => go(index + 1));
+  dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
+  root.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(index - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(index + 1); }
+  });
+  root.addEventListener('pointerenter', () => { held = true; });
+  root.addEventListener('pointerleave', () => { held = false; });
+  root.addEventListener('focusin', () => { held = true; });
+  root.addEventListener('focusout', () => { held = false; });
+
+  // Swipe on touch screens.
+  let x0 = null;
+  const viewport = root.querySelector('.carousel__viewport');
+  viewport.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') x0 = e.clientX; });
+  viewport.addEventListener('pointerup', (e) => {
+    if (x0 === null) return;
+    const dx = e.clientX - x0; x0 = null;
+    if (Math.abs(dx) > 50) go(index + (dx < 0 ? 1 : -1));
+  });
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => {
+      inView = e.isIntersecting;
+      if (inView) schedule();
+      else { clearTimeout(timer); const v = videoOf(index); if (v) v.pause(); }
+    }, { threshold: 0.4 }).observe(root);
+  }
+  go(0);
+});
+
 /* ---------- Entrances ---------- */
 const revealables = document.querySelectorAll('[data-reveal]');
 if (reduceMotion || !('IntersectionObserver' in window)) {

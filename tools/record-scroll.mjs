@@ -73,6 +73,37 @@ async function run(b, step) {
     const { selector = 'section, footer', maxStops = 0, hold = 1000 } = step.sections;
     return b.evaluate(`(async () => { for (const y of __rec.stops(${JSON.stringify(selector)}, ${maxStops})) { await __rec.glide(y); await __rec.wait(${hold}); } })()`);
   }
+  if (step.type) {
+    const { selector, text, delay = 45 } = step.type;
+    await b.evaluate(`document.querySelector(${JSON.stringify(selector)}).focus()`);
+    for (const ch of text) { await b.send('Input.insertText', { text: ch }); await sleep(delay + Math.random() * delay * .6); }
+    return sleep(step.after ?? 500);
+  }
+  if (step.waitStable) {
+    // Waits until the text inside an element stops changing, e.g. a streamed reply.
+    const { selector, quiet = 2500, timeout = 120000 } = step.waitStable;
+    const t0 = Date.now(); let last = -1, since = Date.now();
+    while (Date.now() - t0 < timeout) {
+      const len = await b.evaluate(`(document.querySelector(${JSON.stringify(selector)})?.innerText || '').length`);
+      if (len !== last) { last = len; since = Date.now(); } else if (Date.now() - since > quiet) break;
+      await sleep(250);
+    }
+    return;
+  }
+  if (step.waitFor) {
+    // Polls a page expression until it is true, e.g. a "Stop" button turning back into "Send".
+    const { js, timeout = 180000 } = step.waitFor;
+    const t0 = Date.now();
+    while (Date.now() - t0 < timeout && !(await b.evaluate(js))) await sleep(300);
+    return sleep(step.after ?? 0);
+  }
+  if (step.scrollIn) {
+    const { selector, to = 'end', ms = 1400 } = step.scrollIn;
+    return b.evaluate(`new Promise((r) => { const el = document.querySelector(${JSON.stringify(selector)}); const from = el.scrollTop;
+      const target = ${JSON.stringify(to)} === 'end' ? el.scrollHeight - el.clientHeight : ${JSON.stringify(to)} === 'start' ? 0 : +${JSON.stringify(to)};
+      const start = performance.now(); const step = (now) => { const k = Math.min(1, (now - start) / ${ms}); el.scrollTop = from + (target - from) * __rec.ease(k); k < 1 ? requestAnimationFrame(step) : r(); };
+      requestAnimationFrame(step); })`);
+  }
   if (step.top) return b.evaluate(`__rec.glide(0, ${step.top})`);
   if (step.to) return b.evaluate(`__rec.glide(${step.to}, ${step.ms || 0})`);
   throw new Error('unknown step ' + JSON.stringify(step));
@@ -85,6 +116,7 @@ try {
   for (const [ci, clip] of tour.clips.entries()) {
     if (clip.url) await b.goto(clip.url, clip.settle ?? 1800);
     await b.evaluate(HELPERS);
+    if (clip.css) await b.evaluate(`(() => { const s = document.createElement('style'); s.textContent = ${JSON.stringify(clip.css)}; document.head.append(s); })()`);
     for (const step of clip.setup || []) await run(b, step);
     await b.evaluate('scrollTo(0, 0)');
     await sleep(500);
@@ -97,20 +129,25 @@ try {
     await b.send('Page.startScreencast', { format: 'jpeg', quality: 92, maxWidth: W, maxHeight: H, everyNthFrame: 1 });
     await sleep(250);
     const t0 = Date.now() / 1000;
-    for (const step of clip.record) await run(b, step);
-    const t1 = Date.now() / 1000;
+    // Each step remembers its real time span; a step with speed > 1 is played back faster.
+    const spans = [];
+    let tPrev = t0;
+    for (const step of clip.record) { await run(b, step); const now = Date.now() / 1000; spans.push({ a: tPrev, b: now, speed: step.speed || 1 }); tPrev = now; }
+    const t1 = tPrev;
     await b.send('Page.stopScreencast');
     off();
     if (!frames.length) throw new Error(`clip ${ci}: no frames captured`);
 
     // Resample the variable-rate screencast to a steady 30 fps, holding the last frame through still moments.
     const dir = join(work, `c${ci}`); mkdirSync(dir);
-    const start = Math.max(frames[0].t, t0 - 0.05), total = t1 - start;
+    spans[0].a = Math.max(frames[0].t, t0 - 0.05);
     let fi = 0, n = 0;
-    for (let k = 0; k / FPS <= total; k++) {
-      const t = start + k / FPS;
-      while (fi + 1 < frames.length && frames[fi + 1].t <= t) fi++;
-      writeFileSync(join(dir, `f${String(n++).padStart(5, '0')}.jpg`), Buffer.from(frames[fi].data, 'base64'));
+    for (const sp of spans) {
+      for (let k = 0; sp.a + k * sp.speed / FPS < sp.b; k++) {
+        const t = sp.a + k * sp.speed / FPS;
+        while (fi + 1 < frames.length && frames[fi + 1].t <= t) fi++;
+        writeFileSync(join(dir, `f${String(n++).padStart(5, '0')}.jpg`), Buffer.from(frames[fi].data, 'base64'));
+      }
     }
     const out = join(work, `c${ci}.mp4`);
     execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-framerate', String(FPS), '-i', join(dir, 'f%05d.jpg'),

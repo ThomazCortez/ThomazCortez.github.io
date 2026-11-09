@@ -59,7 +59,7 @@
 <section class="section" id="projetos" aria-labelledby="projetos-h">
   <div class="block__head" data-reveal>
     <h2 class="h2" id="projetos-h">Projetos web</h2>
-    <p class="small">Quatro sites que construí de raiz, do servidor ao ecrã.</p>
+    <p class="small">Cinco sites feitos de raiz, do servidor ao ecrã.</p>
   </div>
   <ol class="work">
     <li data-reveal>
@@ -110,52 +110,66 @@
         <div class="work__shot"><video src="assets/video/telepomba-scroll.mp4" poster="assets/img/telepomba-scroll-poster.jpg" width="1280" height="800" muted loop playsinline preload="metadata" aria-label="Página inicial do TelePomba a deslizar secção a secção"></video></div>
       </a>
     </li>
+    <li data-reveal>
+      <a class="work__item" href="projetos/petgesthotel.html">
+        <div class="work__text">
+          <h3 class="work__name">PetGestHotel</h3>
+          <p class="work__meta small">Projeto do CTeSP, 2026 · em curso, equipa de 3</p>
+          <p class="work__line">Hotel para animais: reservas num site, numa API e numa app Android, com chat entre cliente e colaborador.</p>
+          <p class="work__stack"><span>Yii2</span><span>PHP</span><span>MySQL</span><span>Android</span></p>
+          <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
+        </div>
+        <div class="work__shot"><video src="assets/video/petgesthotel-scroll.mp4" poster="assets/img/petgesthotel-scroll-poster.jpg" width="1280" height="800" muted loop playsinline preload="metadata" aria-label="Visita ao PetGestHotel: página inicial, sobre nós, entrar e criar conta"></video></div>
+      </a>
+    </li>
   </ol>
 </section>
 
 <section class="section" id="outros" aria-labelledby="outros-h">
   <div class="block__head" data-reveal>
-    <h2 class="h2" id="outros-h">Outros projetos</h2>
-    <p class="small">Um projeto de equipa do CTeSP e dois projetos pessoais.</p>
+    <h2 class="h2" id="outros-h">Projetos pessoais</h2>
+    <p class="small">Fora da web: uma IA que corre no computador e um jogo no Roblox.</p>
   </div>
-  <ul class="cards">
-    <li data-reveal>
-      <a class="card" href="projetos/petgesthotel.html">
-        <span class="card__media"><img src="assets/img/petgesthotel-index.webp" alt="Página inicial do PetGestHotel" width="2000" height="1011" loading="lazy"></span>
-        <div class="card__body">
-          <p class="card__tags"><span class="tag">CTeSP</span><span class="tag tag--live">Em curso</span></p>
-          <h3 class="card__name">PetGestHotel</h3>
-          <p class="card__line">Hotel para animais: reservas num site, numa API e numa app Android, com chat entre cliente e colaborador. Equipa de 3, 2026.</p>
-          <p class="work__stack"><span>Yii2</span><span>PHP</span><span>MySQL</span><span>Android</span></p>
-          <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
+  <div data-reveal>
+    <div class="carousel" data-carousel role="region" aria-roledescription="carrossel" aria-label="Projetos pessoais">
+      <div class="carousel__viewport">
+        <ul class="carousel__track" aria-live="polite">
+        <li class="slide" role="group" aria-roledescription="diapositivo" aria-label="1 de 2: Lux">
+          <a class="slide__link" href="projetos/lux.html">
+            <div class="slide__media"><video src="assets/video/lux-scroll.mp4" poster="assets/img/lux-scroll-poster.jpg" width="1280" height="800" muted playsinline preload="metadata" aria-label="O Lux a responder a uma pergunta com um modelo local"></video></div>
+            <div class="slide__body">
+              <p class="card__tags"><span class="tag">Pessoal</span></p>
+              <h3 class="slide__name">Lux</h3>
+              <p class="slide__line">Assistente de programação com IA que corre todo no próprio computador, através do Ollama. Conversa, lê ficheiros e programa numa pasta, sempre a pedir autorização antes de alterar.</p>
+              <p class="work__stack"><span>Python</span><span>JavaScript</span><span>Ollama</span></p>
+              <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
+            </div>
+          </a>
+        </li>
+        <li class="slide" role="group" aria-roledescription="diapositivo" aria-label="2 de 2: Dreadware">
+          <a class="slide__link" href="projetos/dreadware.html">
+            <div class="slide__media"><img src="assets/img/dreadware-exterior.webp" alt="Personagem no mapa do Dreadware, à noite" width="2000" height="855" loading="lazy"></div>
+            <div class="slide__body">
+              <p class="card__tags"><span class="tag">Pessoal</span><span class="tag tag--live">Em curso</span></p>
+              <h3 class="slide__name">Dreadware</h3>
+              <p class="slide__line">Jogo de terror multijogador no Roblox que estou a fazer sozinho: reparar computadores para descobrir o código de saída e fugir antes que o tempo acabe.</p>
+              <p class="work__stack"><span>Luau</span><span>Roblox Studio</span><span>Rojo</span></p>
+              <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
+            </div>
+          </a>
+        </li>
+        </ul>
+      </div>
+      <div class="carousel__controls">
+        <button class="carousel__arrow carousel__arrow--prev" type="button" aria-label="Projeto anterior"><span aria-hidden="true">←</span></button>
+        <div class="carousel__dots">
+          <button class="carousel__dot" type="button" aria-label="Mostrar Lux"></button>
+          <button class="carousel__dot" type="button" aria-label="Mostrar Dreadware"></button>
         </div>
-      </a>
-    </li>
-    <li data-reveal>
-      <a class="card" href="projetos/lux.html">
-        <span class="card__media"><img src="assets/img/lux-inicio.webp" alt="Ecrã inicial do Lux" width="2000" height="1093" loading="lazy"></span>
-        <div class="card__body">
-          <p class="card__tags"><span class="tag">Pessoal</span></p>
-          <h3 class="card__name">Lux</h3>
-          <p class="card__line">Assistente de programação com IA que corre no próprio computador, através do Ollama, e pede autorização antes de cada alteração.</p>
-          <p class="work__stack"><span>Python</span><span>JavaScript</span><span>Ollama</span></p>
-          <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
-        </div>
-      </a>
-    </li>
-    <li data-reveal>
-      <a class="card" href="projetos/dreadware.html">
-        <span class="card__media"><img src="assets/img/dreadware-exterior.webp" alt="Personagem no mapa do Dreadware, à noite" width="2000" height="855" loading="lazy"></span>
-        <div class="card__body">
-          <p class="card__tags"><span class="tag">Pessoal</span><span class="tag tag--live">Em curso</span></p>
-          <h3 class="card__name">Dreadware</h3>
-          <p class="card__line">Jogo de terror no Roblox que estou a fazer sozinho: reparar computadores para fugir antes que o tempo acabe.</p>
-          <p class="work__stack"><span>Luau</span><span>Roblox Studio</span><span>Rojo</span></p>
-          <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
-        </div>
-      </a>
-    </li>
-  </ul>
+        <button class="carousel__arrow carousel__arrow--next" type="button" aria-label="Projeto seguinte"><span aria-hidden="true">→</span></button>
+      </div>
+    </div>
+  </div>
   <p class="others-note" data-reveal>No 1.º ano do CTeSP fiz ainda, em dupla, duas aplicações desktop em C#: o SecureChat, um chat de grupo com mensagens cifradas, e o iShopping, uma lista de compras com orçamento mensal.</p>
 </section>
 
