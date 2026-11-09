@@ -189,6 +189,14 @@ document.querySelectorAll('.matrix').forEach(buildMatrix);
   });
 })();
 
+/* ---------- Project videos play only while on screen, and never when motion is unwelcome ---------- */
+document.querySelectorAll('.work__shot video').forEach((v) => {
+  if (reduceMotion || !('IntersectionObserver' in window)) return;
+  new IntersectionObserver(([e]) => {
+    if (e.isIntersecting) v.play().catch(() => {}); else v.pause();
+  }, { threshold: 0.35 }).observe(v);
+});
+
 /* ---------- Entrances ---------- */
 const revealables = document.querySelectorAll('[data-reveal]');
 if (reduceMotion || !('IntersectionObserver' in window)) {

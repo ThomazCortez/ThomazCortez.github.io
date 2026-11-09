@@ -174,9 +174,28 @@ input[type=range] { width: 100%; height: 32px; background: transparent; accent-c
 .work__meta { margin-top: 14px; }
 .work__line { margin-top: 8px; max-width: 40ch; }
 .work__stack { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--step-small); color: var(--muted); }
-.work__shot { border-radius: 16px; overflow: hidden; aspect-ratio: 16 / 10; background: var(--stage); }
-.work__shot img { width: 100%; height: 100%; object-fit: cover; object-position: left top; transition: transform 600ms var(--ease-out); }
-.work__item:hover .work__shot img { transform: scale(1.025); }
+/* A quiet browser window: hairline edge, three dots, soft shadow that lifts on hover. */
+.work__shot {
+  position: relative; padding-top: 30px;
+  border-radius: 14px; overflow: hidden; background: #fff;
+  border: 1px solid rgba(18, 18, 18, .08);
+  box-shadow: 0 1px 2px rgba(18, 18, 18, .04), 0 18px 40px -22px rgba(18, 18, 18, .28);
+  transition: transform 400ms var(--ease-out), box-shadow 400ms var(--ease-out);
+}
+.work__shot::before {
+  content: ""; position: absolute; inset: 0 0 auto; height: 30px;
+  border-bottom: 1px solid rgba(18, 18, 18, .07);
+  background:
+    radial-gradient(circle, #d6d5cf 3.5px, transparent 4px) 14px 50% / 12px 12px no-repeat,
+    radial-gradient(circle, #d6d5cf 3.5px, transparent 4px) 30px 50% / 12px 12px no-repeat,
+    radial-gradient(circle, #d6d5cf 3.5px, transparent 4px) 46px 50% / 12px 12px no-repeat,
+    #f7f7f5;
+}
+.work__shot img, .work__shot video { display: block; width: 100%; aspect-ratio: 16 / 10; height: auto; object-fit: cover; object-position: left top; }
+.work__item:hover .work__shot, .work__item:focus-visible .work__shot {
+  transform: translateY(-4px);
+  box-shadow: 0 1px 2px rgba(18, 18, 18, .04), 0 28px 56px -24px rgba(18, 18, 18, .36);
+}
 .more { display: inline-flex; gap: 8px; margin-top: 14px; font-size: 16px; font-weight: 500; color: var(--ink); }
 a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
 
@@ -370,7 +389,8 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
   .block__head { flex-direction: column; align-items: flex-start; }
   .block__head p { text-align: left; }
   .work__item { grid-template-columns: minmax(0, 1fr); gap: 18px; }
-  .work__shot { order: -1; border-radius: 14px; }
+  .work__shot { order: -1; border-radius: 12px; padding-top: 24px; }
+  .work__shot::before { height: 24px; background-size: 10px 10px; }
   .work__name { font-size: 11vw; }
   .cards { grid-template-columns: minmax(0, 1fr); }
   .field__head { grid-template-columns: minmax(0, 1fr); }
