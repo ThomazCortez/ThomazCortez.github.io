@@ -1,0 +1,12 @@
+# Ferramentas de design e cache local
+.taste-skill/
+.impeccable/
+.claude/skills/
+.claude/agents/
+.claude/settings.local.json
+skills-lock.json
+
+# Sistema
+Thumbs.db
+desktop.ini
+.DS_Store

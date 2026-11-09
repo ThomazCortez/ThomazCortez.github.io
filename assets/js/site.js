@@ -1,0 +1,254 @@
+// Portefólio: matriz de atividade, palco fixo, entradas e copiar email.
+document.documentElement.classList.add('js');
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SVG = 'http://www.w3.org/2000/svg';
+
+/* ---------- Dot drawings (X = on, R = accent, . = off) ---------- */
+const GLYPHS = {
+  paw: [
+    '...XX...XX...',
+    '..XXXX.XXXX..',
+    '..XXXX.XXXX..',
+    '...XX...XX...',
+    'XX.........XX',
+    'XXX.......XXX',
+    '.XX..XXX..XX.',
+    '....XXXXX....',
+    '...XXXRXXX...',
+    '..XXXXXXXXX..',
+    '..XXXXXXXXX..',
+    '...XXX.XXX...',
+  ],
+  lock: [
+    '...XXXXX...',
+    '..XX...XX..',
+    '.XX.....XX.',
+    '.XX.....XX.',
+    '.XX.....XX.',
+    'XXXXXXXXXXX',
+    'XXXXXXXXXXX',
+    'XXXXXRXXXXX',
+    'XXXXRRRXXXX',
+    'XXXXXRXXXXX',
+    'XXXXXRXXXXX',
+    'XXXXXXXXXXX',
+    'XXXXXXXXXXX',
+  ],
+  receipt: [
+    'XXXXXXXXXXX',
+    'X.........X',
+    'X.XXXX.XX.X',
+    'X.........X',
+    'X.XXXXX.X.X',
+    'X.........X',
+    'X.XXX..XX.X',
+    'X.........X',
+    'X.XXXXXXX.X',
+    'X.........X',
+    'X.RRRR.RR.X',
+    'X.........X',
+    'X.X.X.X.X.X',
+    '.X.X.X.X.X.',
+  ],
+  prompt: [
+    '...............',
+    '.X.............',
+    '..X............',
+    '...X...........',
+    '..X............',
+    '.X.....RRRRR...',
+    '...............',
+  ],
+  monogram: [
+    'XXXXXX..XXXXX..',
+    '..XX....XX..XX.',
+    '..XX....XX..XX.',
+    '..XX....XXXXX..',
+    '..XX....XX..XX.',
+    '..XX....XX..XX.',
+    '..XX....XXXXX.R',
+  ],
+};
+
+function drawGlyph(name, { pad = 1 } = {}) {
+  const rows = GLYPHS[name];
+  const w = rows[0].length + pad * 2, h = rows.length + pad * 2, s = 10;
+  const svg = document.createElementNS(SVG, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${w * s} ${h * s}`);
+  svg.setAttribute('aria-hidden', 'true');
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const ch = rows[y - pad]?.[x - pad] ?? '.';
+      const c = document.createElementNS(SVG, 'circle');
+      c.setAttribute('cx', x * s + s / 2);
+      c.setAttribute('cy', y * s + s / 2);
+      c.setAttribute('r', ch === '.' ? 2.6 : 3.8);
+      c.setAttribute('fill', ch === 'R' ? '#d71921' : ch === 'X' ? '#f2f1ec' : '#202020');
+      svg.appendChild(c);
+    }
+  }
+  return svg;
+}
+
+document.querySelectorAll('[data-glyph]').forEach((el) => el.prepend(drawGlyph(el.dataset.glyph)));
+
+/* ---------- Activity matrix ---------- */
+function buildMatrix(root) {
+  const data = window.ACTIVITY;
+  if (!data) return;
+  const counts = data.counts;
+  const start = new Date(data.start + 'T12:00:00');
+  const offset = (start.getDay() + 6) % 7; // Monday first
+  const weeks = Math.ceil((counts.length + offset) / 7);
+  const s = 12;
+  const grid = root.querySelector('.matrix__grid');
+  const svg = document.createElementNS(SVG, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${weeks * s} ${7 * s}`);
+  svg.setAttribute('aria-hidden', 'true');
+  const dots = counts.map((n, i) => {
+    const k = i + offset;
+    const c = document.createElementNS(SVG, 'circle');
+    c.setAttribute('cx', Math.floor(k / 7) * s + s / 2);
+    c.setAttribute('cy', (k % 7) * s + s / 2);
+    c.setAttribute('r', 3.9);
+    c.setAttribute('class', n === 0 ? '' : n < 3 ? 'l1' : n < 7 ? 'l2' : 'l3');
+    svg.appendChild(c);
+    return c;
+  });
+  grid.appendChild(svg);
+
+  const total = counts.reduce((a, b) => a + b, 0);
+  root.querySelector('[data-total]').textContent = total;
+
+  const fmt = new Intl.DateTimeFormat('pt-PT', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  const readout = root.querySelector('.matrix__readout');
+  const range = root.querySelector('input[type=range]');
+  range.max = counts.length - 1;
+  let current = -1;
+
+  function show(i) {
+    if (i === current) return;
+    if (current >= 0) dots[current].classList.remove('is-on');
+    current = i;
+    dots[i].classList.add('is-on');
+    const day = new Date(start);
+    day.setDate(start.getDate() + i);
+    const iso = day.toISOString().slice(0, 10);
+    const n = counts[i];
+    const repos = data.repos[iso];
+    readout.innerHTML = '';
+    readout.append(`${fmt.format(day)}: ${n === 0 ? 'sem contribuições' : n === 1 ? '1 contribuição' : n + ' contribuições'}`);
+    if (repos?.length) {
+      const span = document.createElement('span');
+      span.textContent = ' em ' + repos.join(', ');
+      readout.append(span);
+    }
+    range.value = i;
+  }
+
+  const busiest = counts.indexOf(Math.max(...counts));
+  show(busiest);
+  range.addEventListener('input', () => show(+range.value));
+
+  svg.addEventListener('pointermove', (e) => {
+    const r = svg.getBoundingClientRect();
+    const col = Math.floor(((e.clientX - r.left) / r.width) * weeks);
+    const row = Math.floor(((e.clientY - r.top) / r.height) * 7);
+    if (col < 0 || row < 0 || row > 6 || col >= weeks) return;
+    const i = col * 7 + row - offset;
+    if (i >= 0 && i < counts.length) show(i);
+  });
+}
+
+document.querySelectorAll('.matrix').forEach(buildMatrix);
+
+/* ---------- The stage follows the reading column ---------- */
+document.querySelectorAll('.split').forEach((split) => {
+  const layers = [...split.querySelectorAll('.stage [data-layer]')];
+  if (!layers.length) return;
+  const fallback = layers[0].dataset.layer;
+  const triggers = [...split.querySelectorAll('[data-stage]')];
+  let active = null;
+
+  function activate(id) {
+    if (id === active) return;
+    const previous = layers.find((l) => l.dataset.layer === active);
+    active = id;
+    layers.forEach((l) => l.classList.remove('is-leaving'));
+    if (previous && !reduceMotion) {
+      previous.classList.add('is-leaving');
+      setTimeout(() => previous.classList.remove('is-leaving'), 700);
+    }
+    layers.forEach((l) => l.classList.toggle('is-active', l.dataset.layer === id));
+    triggers.forEach((t) => t.classList.toggle('is-active', t.dataset.stage === id));
+  }
+  activate(fallback);
+
+  const visible = new Map();
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => visible.set(e.target, e.isIntersecting));
+    const first = triggers.find((t) => visible.get(t));
+    activate(first ? first.dataset.stage : fallback);
+  }, { rootMargin: '-42% 0px -42% 0px' });
+  triggers.forEach((t) => io.observe(t));
+
+  triggers.forEach((t) => {
+    t.addEventListener('pointerenter', () => activate(t.dataset.stage));
+    t.addEventListener('focusin', () => activate(t.dataset.stage));
+  });
+});
+
+/* ---------- From the hero straight to the projects ----------
+   On a wide screen, the first nudge downwards from the very top glides to "Projetos web",
+   so the space under the hero is never seen half-scrolled. Everything after that scrolls normally. */
+(() => {
+  const target = document.getElementById('projetos');
+  const wide = window.matchMedia('(min-width: 861px)');
+  if (!target) return;
+  let gliding = false;
+  const atTop = () => window.scrollY < 8;
+  function glide() {
+    gliding = true;
+    const y = target.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: y, behavior: reduceMotion ? 'auto' : 'smooth' });
+    setTimeout(() => { gliding = false; }, 900);
+  }
+  window.addEventListener('wheel', (e) => {
+    if (!wide.matches) return;
+    if (gliding) { e.preventDefault(); return; }
+    if (e.deltaY > 0 && atTop()) { e.preventDefault(); glide(); }
+  }, { passive: false });
+  window.addEventListener('keydown', (e) => {
+    if (!wide.matches || !atTop() || e.target.closest('input, textarea, select, [contenteditable]')) return;
+    if (['ArrowDown', 'PageDown', ' '].includes(e.key) && !e.shiftKey) { e.preventDefault(); glide(); }
+  });
+})();
+
+/* ---------- Entrances ---------- */
+const revealables = document.querySelectorAll('[data-reveal]');
+if (reduceMotion || !('IntersectionObserver' in window)) {
+  revealables.forEach((el) => el.classList.add('is-in'));
+} else {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -10% 0px' });
+  revealables.forEach((el) => io.observe(el));
+}
+
+/* ---------- Copy email ---------- */
+document.querySelectorAll('[data-copy]').forEach((btn) => {
+  const note = document.getElementById(btn.getAttribute('aria-describedby'));
+  btn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(btn.dataset.copy);
+      btn.textContent = 'Copiado';
+      if (note) note.textContent = 'O email está na área de transferência.';
+    } catch {
+      if (note) note.textContent = 'Não foi possível copiar. O endereço é ' + btn.dataset.copy + '.';
+    }
+    setTimeout(() => { btn.textContent = 'Copiar'; }, 2400);
+  });
+});

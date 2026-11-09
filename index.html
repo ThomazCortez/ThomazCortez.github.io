@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thomaz Barrago · Programador web júnior</title>
+  <meta name="description" content="Portefólio de Thomaz Barrago, programador web júnior a estudar Programação de Sistemas de Informação na Universidade de Leiria Oeste. Projetos, estágios e contacto.">
+  <meta name="theme-color" content="#ecebe7">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:ROND,wght@100,900&family=Host+Grotesk:wght@400;500&display=swap">
+  <link rel="stylesheet" href="assets/css/site.css">
+</head>
+<body>
+<a class="skip" href="#projetos">Saltar para os projetos</a>
+
+<div class="split">
+  <main class="read" id="topo">
+
+    <header class="hero">
+      <nav class="nav" aria-label="Principal">
+        <a class="wordmark" href="#topo" aria-label="Thomaz Barrago, início">thomaz<i>.</i></a>
+        <ul>
+          <li><a href="#projetos">Projetos</a></li>
+          <li><a href="#estagios">Estágios</a></li>
+          <li><a href="#sobre">Sobre</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </nav>
+
+      <div class="hero__body" data-reveal>
+        <h1 class="display">Thomaz<br>Barrago</h1>
+        <p class="lead">Programador web júnior. Estudo Programação de Sistemas de Informação na Universidade de Leiria Oeste.</p>
+        <p class="status">À procura de estágio para o 2.º semestre de 2026/27</p>
+        <div class="hero__actions">
+          <a class="btn" href="#projetos">Ver projetos <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="link" href="mailto:thomazbarrago@gmail.com">thomazbarrago@gmail.com</a>
+        </div>
+      </div>
+      <a class="scroll-cue" href="#projetos">Desliza para ver os projetos <span class="scroll-cue__arrow" aria-hidden="true">↓</span></a>
+
+      <!-- On a phone the stage is hidden, so the matrix sits here instead. -->
+      <div class="stage m-only m-stage" aria-label="Atividade no GitHub nos últimos 12 meses">
+        <div class="matrix">
+                    <div class="matrix__count">
+            <p class="display" data-total>512</p>
+            <p>contribuições no GitHub nos últimos 12 meses, entre projetos pessoais e do curso.</p>
+          </div>
+          <div class="matrix__grid"></div>
+          <p class="matrix__readout" aria-live="polite"></p>
+          <div class="matrix__scrub">
+            <label for="scrub-m">Escolhe um dia</label>
+            <input id="scrub-m" type="range" min="0" max="365" step="1" value="0">
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="block" id="projetos" aria-labelledby="projetos-h">
+      <div class="block__head" data-reveal>
+        <h2 class="h2" id="projetos-h">Projetos web</h2>
+        <p class="small">Quatro sites que construí de raiz, do servidor ao ecrã.</p>
+      </div>
+      <ol class="work">
+        <li data-reveal>
+          <a class="work__item" href="projetos/moonarrow.html" data-stage="moonarrow">
+            <div class="work__shot m-only"><img src="assets/img/moonarrow-marketplace.jpg" alt="Marketplace do MoonArrow Studios com a lista de assets" width="2880" height="1800" loading="lazy"></div>
+            <h3 class="work__name">MoonArrow Studios</h3>
+            <p class="work__meta small">PAP do 12.º ano, 2025 · avaliada com 20 valores</p>
+            <p class="work__line">Fórum e marketplace de assets para quem faz jogos, com painel de administração.</p>
+            <p class="work__stack"><span>PHP</span><span>MySQL</span><span>Bootstrap</span><span>JavaScript</span></p>
+            <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li data-reveal>
+          <a class="work__item" href="projetos/devday.html" data-stage="devday">
+            <div class="work__shot m-only"><img src="assets/img/devday-kanban.jpg" alt="Quadro kanban do DevDay com quatro tarefas" width="2880" height="1800" loading="lazy"></div>
+            <h3 class="work__name">DevDay</h3>
+            <p class="work__meta small">Projeto pessoal, 2026 · online</p>
+            <p class="work__line">Planeador diário para programadores: lista e kanban, pomodoro e meteorologia.</p>
+            <p class="work__stack"><span>JavaScript</span><span>Firebase</span><span>CSS</span><span>GitHub Pages</span></p>
+            <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li data-reveal>
+          <a class="work__item" href="projetos/dailyfuel.html" data-stage="dailyfuel">
+            <div class="work__shot m-only"><img src="assets/img/dailyfuel.jpg" alt="Painel do DailyFuel com energia diária, macronutrientes e peso" width="2880" height="1800" loading="lazy"></div>
+            <h3 class="work__name">DailyFuel</h3>
+            <p class="work__meta small">Projeto pessoal, 2026 · online</p>
+            <p class="work__line">Diário de calorias, peso e água, com lembretes para beber água e treinar.</p>
+            <p class="work__stack"><span>Next.js</span><span>TypeScript</span><span>Supabase</span><span>Cloudflare</span></p>
+            <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li data-reveal>
+          <a class="work__item" href="projetos/telepomba.html" data-stage="telepomba">
+            <div class="work__shot m-only"><img src="assets/img/telepomba-login.jpg" alt="Ecrã de início de sessão do TelePomba" width="2880" height="1800" loading="lazy"></div>
+            <h3 class="work__name">TelePomba</h3>
+            <p class="work__meta small">Projeto de turma, 2025 · scrum master numa equipa de 6</p>
+            <p class="work__line">Chat em tempo real com conversas de grupo, contas e envio de ficheiros.</p>
+            <p class="work__stack"><span>PHP</span><span>Node.js</span><span>Socket.IO</span><span>MySQL</span></p>
+            <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+        </li>
+      </ol>
+      <div class="read__end"></div>
+    </section>
+  </main>
+
+  <aside class="stage" aria-label="Pré-visualização">
+    <div class="stage__layer" data-layer="matrix">
+      <div class="matrix">
+                <div class="matrix__count">
+          <p class="display" data-total>512</p>
+          <p>contribuições no GitHub nos últimos 12 meses, entre projetos pessoais e do curso.</p>
+        </div>
+        <div class="matrix__grid"></div>
+        <p class="matrix__readout" aria-live="polite"></p>
+        <div class="matrix__scrub">
+          <label for="scrub">Escolhe um dia ou passa o rato pelos pontos</label>
+          <input id="scrub" type="range" min="0" max="365" step="1" value="0">
+        </div>
+      </div>
+    </div>
+    <div class="stage__layer" data-layer="moonarrow">
+      <a class="shot" href="projetos/moonarrow.html" tabindex="-1">
+        <span class="shot__media"><img src="assets/img/moonarrow-marketplace.jpg" alt="Marketplace do MoonArrow Studios com a lista de assets" width="2880" height="1800"></span>
+        <span class="shot__info">
+          <span class="shot__name">MoonArrow Studios</span>
+          <span class="shot__line">Marketplace de assets · PHP e MySQL</span>
+          <span class="shot__cta">Abrir o projeto <span class="arrow" aria-hidden="true">→</span></span>
+        </span>
+      </a>
+    </div>
+    <div class="stage__layer" data-layer="devday">
+      <a class="shot" href="projetos/devday.html" tabindex="-1">
+        <span class="shot__media"><img src="assets/img/devday-kanban.jpg" alt="Quadro kanban do DevDay com quatro tarefas" width="2880" height="1800" loading="lazy"></span>
+        <span class="shot__info">
+          <span class="shot__name">DevDay</span>
+          <span class="shot__line">Vista kanban · JavaScript e Firebase</span>
+          <span class="shot__cta">Abrir o projeto <span class="arrow" aria-hidden="true">→</span></span>
+        </span>
+      </a>
+    </div>
+    <div class="stage__layer" data-layer="dailyfuel">
+      <a class="shot" href="projetos/dailyfuel.html" tabindex="-1">
+        <span class="shot__media"><img src="assets/img/dailyfuel.jpg" alt="Painel do DailyFuel com energia diária, macronutrientes e peso" width="2880" height="1800" loading="lazy"></span>
+        <span class="shot__info">
+          <span class="shot__name">DailyFuel</span>
+          <span class="shot__line">Diário alimentar · Next.js e Supabase</span>
+          <span class="shot__cta">Abrir o projeto <span class="arrow" aria-hidden="true">→</span></span>
+        </span>
+      </a>
+    </div>
+    <div class="stage__layer" data-layer="telepomba">
+      <a class="shot" href="projetos/telepomba.html" tabindex="-1">
+        <span class="shot__media"><img src="assets/img/telepomba-login.jpg" alt="Ecrã de início de sessão do TelePomba" width="2880" height="1800" loading="lazy"></span>
+        <span class="shot__info">
+          <span class="shot__name">TelePomba</span>
+          <span class="shot__line">Início de sessão · PHP e Socket.IO</span>
+          <span class="shot__cta">Abrir o projeto <span class="arrow" aria-hidden="true">→</span></span>
+        </span>
+      </a>
+    </div>
+  </aside>
+</div>
+
+<section class="field" id="estagios" aria-labelledby="estagios-h">
+  <div class="field__head" data-reveal>
+    <h2 class="display" id="estagios-h">Estágios</h2>
+    <p>Três estágios durante o secundário: dois em desenvolvimento web no Algarve e um Erasmus+ na Polónia.</p>
+  </div>
+  <ol class="jobs">
+    <li data-reveal>
+      <div><p class="when">2025</p><p class="when__sub">Maio a junho · 2 meses</p></div>
+      <div>
+        <h3 class="role">Programador web</h3>
+        <p class="where">ByBruno Software · Portimão, remoto</p>
+      </div>
+      <p class="what">Desenvolvi a secção de reservas de um site de alojamentos no Algarve: formulários, pagamentos e emails automáticos de confirmação.<span class="small">PHP, HTML, CSS, JavaScript, AJAX</span></p>
+    </li>
+    <li data-reveal>
+      <div><p class="when">2025</p><p class="when__sub">Abril a maio · 2 meses</p></div>
+      <div>
+        <h3 class="role">Técnico de digitalização 3D</h3>
+        <p class="where">Fundacja Akcelerator Obywatelski Spark · Breslávia, Polónia · <span class="erasmus">Erasmus+</span></p>
+      </div>
+      <p class="what">Fotografei objetos com câmaras Nikon e transformei as fotografias em modelos 3D texturizados por fotogrametria.<span class="small">RealityCapture, fotografia, modelação 3D</span></p>
+    </li>
+    <li data-reveal>
+      <div><p class="when">2024</p><p class="when__sub">Maio a julho · 3 meses</p></div>
+      <div>
+        <h3 class="role">Programador web</h3>
+        <p class="where">Logrise · Lagoa, presencial</p>
+      </div>
+      <p class="what">Construí páginas em WordPress com Elementor e um plugin próprio que gera contratos e os exporta em PDF.<span class="small">WordPress, PHP, HTML, CSS, JavaScript, AJAX</span></p>
+    </li>
+  </ol>
+</section>
+
+<div class="split">
+  <div class="read">
+    <section class="block" id="curso" aria-labelledby="curso-h">
+      <div class="block__head" data-reveal>
+        <h2 class="h2" id="curso-h">No CTeSP</h2>
+        <p class="small">Trabalhos de equipa no curso, de aplicações desktop a uma API.</p>
+      </div>
+      <ul class="list">
+        <li class="list__item" data-stage="petgest" data-reveal>
+          <a href="projetos/petgesthotel.html">
+            <div class="work__shot m-only"><img src="assets/img/petgesthotel-index.webp" alt="Página inicial do PetGestHotel" width="2000" height="1011" loading="lazy"></div>
+            <div class="list__row"><h3 class="h3">PetGestHotel</h3><span class="small"><span class="tag tag--live">Em curso</span> 2026 · equipa de 3</span></div>
+            <p class="list__more measure">Hotel para animais: reserva de quartos e serviços num site, numa API e numa app Android, com chat entre cliente e colaborador.</p>
+            <p class="work__stack"><span>Yii2</span><span>PHP</span><span>MySQL</span><span>Android</span></p>
+            <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li class="list__item" data-stage="securechat" data-reveal>
+          <a href="projetos/securechat.html">
+            <div class="work__shot m-only"><img src="assets/img/securechat-chat.png" alt="Janela de chat do SecureChat" width="1258" height="674" loading="lazy"></div>
+            <div class="list__row"><h3 class="h3">SecureChat</h3><span class="small">2026 · equipa de 2</span></div>
+            <p class="list__more measure">Chat de grupo em C# com mensagens cifradas: as chaves trocam-se com RSA, as mensagens seguem em AES e vão assinadas.</p>
+            <p class="work__stack"><span>C#</span><span>Windows Forms</span><span>TCP</span><span>SQL Server</span></p>
+            <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li class="list__item" data-stage="ishopping" data-reveal>
+          <a href="projetos/ishopping.html">
+            <div class="work__shot m-only"><img src="assets/img/ishopping-inicio.png" alt="Protótipo do ecrã inicial do iShopping" width="1004" height="539" loading="lazy"></div>
+            <div class="list__row"><h3 class="h3">iShopping</h3><span class="small">2026 · equipa de 2</span></div>
+            <p class="list__more measure">Lista de compras com orçamento mensal: avisa quando o orçamento é ultrapassado e imprime o recibo.</p>
+            <p class="work__stack"><span>C#</span><span>Entity Framework</span><span>SQL Server</span></p>
+            <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="block" id="sobre" aria-labelledby="sobre-h" data-stage="sobre">
+      <div class="block__head" data-reveal>
+        <h2 class="h2" id="sobre-h">Sobre mim</h2>
+      </div>
+      <div class="work__shot work__shot--photo photo-ph m-only" data-glyph="monogram" role="img" aria-label="Espaço reservado para a fotografia"></div>
+      <div class="letter measure" data-reveal>
+        <p>Comecei a programar no curso profissional de Programação de Sistemas de Informação, do 10.º ao 12.º ano. A minha PAP, o MoonArrow Studios, foi o primeiro projeto grande que fiz sozinho, da base de dados ao painel de administração, e <mark>teve 20 valores</mark>.</p>
+        <p>Hoje estou no 2.º ano do CTeSP em Programação de Sistemas de Informação, na Universidade de Leiria Oeste. Este semestre faço o PetGestHotel com dois colegas, em Yii2.</p>
+        <p>Já passei por três estágios: dois em desenvolvimento web no Algarve e um Erasmus+ na Polónia, a fazer modelos 3D por fotogrametria.</p>
+        <p>Fora das aulas faço as ferramentas de que preciso, como o DevDay e o DailyFuel, e estou a fazer sozinho um jogo de terror no Roblox.</p>
+        <p>Procuro um estágio onde trabalhe em produtos web reais, com uma equipa que reveja o meu código.</p>
+        <div class="letter__sign">
+          <span class="portrait portrait--ph" aria-hidden="true">TB</span>
+          <p><strong>Thomaz Barrago</strong><span class="small">Leiria, novembro de 2026</span></p>
+        </div>
+      </div>
+
+      <dl class="facts" data-reveal>
+        <dt>Web</dt><dd>HTML, CSS, JavaScript, PHP, AJAX, TypeScript, Next.js</dd>
+        <dt>Dados</dt><dd>MySQL, SQL Server, Firebase, Supabase, SQL</dd>
+        <dt>Frameworks</dt><dd>Yii2, Bootstrap, WordPress, Entity Framework</dd>
+        <dt>Outras</dt><dd>C#, Python, Luau, Git e GitHub</dd>
+        <dt>Línguas</dt><dd>Português, inglês</dd>
+        <dt>2025 a 2027</dt><dd>CTeSP em Programação de Sistemas de Informação, Universidade de Leiria Oeste</dd>
+        <dt>2022 a 2025</dt><dd>Curso profissional de Programação de Sistemas de Informação, ensino secundário</dd>
+      </dl>
+    </section>
+
+    <section class="block" id="outros" aria-labelledby="outros-h">
+      <div class="block__head" data-reveal>
+        <h2 class="h2" id="outros-h">Também fiz</h2>
+      </div>
+      <ul class="others">
+        <li data-stage="lux" data-reveal>
+          <a href="projetos/lux.html">
+            <div class="work__shot m-only"><img src="assets/img/lux-inicio.webp" alt="Ecrã inicial do Lux" width="2000" height="1093" loading="lazy"></div>
+            <h3>Lux</h3>
+            <p>Assistente de programação com IA que corre no próprio computador, através do Ollama. Lê e edita ficheiros numa pasta e pede autorização antes de cada alteração.</p>
+            <p class="work__stack"><span>Python</span><span>JavaScript</span><span>Ollama</span></p>
+            <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li data-stage="dreadware" data-reveal>
+          <a href="projetos/dreadware.html">
+            <div class="work__shot m-only"><img src="assets/img/dreadware-exterior.webp" alt="Personagem no mapa do Dreadware, à noite" width="2000" height="855" loading="lazy"></div>
+            <h3>Dreadware</h3>
+            <p>Jogo de terror no Roblox que estou a fazer sozinho: reparar computadores para fugir antes que o tempo acabe.</p>
+            <p class="work__stack"><span>Luau</span><span>Roblox Studio</span><span>Rojo</span></p>
+            <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+        </li>
+      </ul>
+      <div class="read__end"></div>
+    </section>
+  </div>
+
+  <aside class="stage" aria-label="Pré-visualização">
+    <div class="stage__layer" data-layer="petgest">
+      <a class="shot" href="projetos/petgesthotel.html" tabindex="-1">
+        <span class="shot__media"><img src="assets/img/petgesthotel-index.webp" alt="Página inicial do PetGestHotel com a pesquisa de disponibilidade" width="2000" height="1011" loading="lazy"></span>
+        <span class="shot__info">
+          <span class="shot__name">PetGestHotel</span>
+          <span class="shot__line">Página inicial · Yii2</span>
+          <span class="shot__cta">Abrir o projeto <span class="arrow" aria-hidden="true">→</span></span>
+        </span>
+      </a>
+    </div>
+    <div class="stage__layer" data-layer="securechat">
+      <a class="shot" href="projetos/securechat.html" tabindex="-1">
+        <span class="shot__media"><img src="assets/img/securechat-chat.png" alt="Janela de chat do SecureChat com três utilizadores" width="1258" height="674" loading="lazy"></span>
+        <span class="shot__info">
+          <span class="shot__name">SecureChat</span>
+          <span class="shot__line">Sala de chat cifrada · C#</span>
+          <span class="shot__cta">Abrir o projeto <span class="arrow" aria-hidden="true">→</span></span>
+        </span>
+      </a>
+    </div>
+    <div class="stage__layer" data-layer="ishopping">
+      <a class="shot" href="projetos/ishopping.html" tabindex="-1">
+        <span class="shot__media"><img src="assets/img/ishopping-inicio.png" alt="Protótipo do ecrã inicial do iShopping" width="1004" height="539" loading="lazy"></span>
+        <span class="shot__info">
+          <span class="shot__name">iShopping</span>
+          <span class="shot__line">Protótipo da interface · C#</span>
+          <span class="shot__cta">Abrir o projeto <span class="arrow" aria-hidden="true">→</span></span>
+        </span>
+      </a>
+    </div>
+    <div class="stage__layer" data-layer="sobre">
+      <figure class="photo">
+        <div class="photo-ph" data-glyph="monogram" role="img" aria-label="Espaço reservado para a fotografia"></div>
+        <figcaption class="photo__bar"><span>Thomaz Barrago</span><span>Fotografia em breve</span></figcaption>
+      </figure>
+    </div>
+    <div class="stage__layer" data-layer="lux">
+      <a class="shot" href="projetos/lux.html" tabindex="-1">
+        <span class="shot__media"><img src="assets/img/lux-inicio.webp" alt="Ecrã inicial do Lux" width="2000" height="1093" loading="lazy"></span>
+        <span class="shot__info">
+          <span class="shot__name">Lux</span>
+          <span class="shot__line">Assistente de IA local · Python</span>
+          <span class="shot__cta">Abrir o projeto <span class="arrow" aria-hidden="true">→</span></span>
+        </span>
+      </a>
+    </div>
+    <div class="stage__layer" data-layer="dreadware">
+      <a class="shot" href="projetos/dreadware.html" tabindex="-1">
+        <span class="shot__media"><img src="assets/img/dreadware-exterior.webp" alt="Personagem no mapa do Dreadware, à noite" width="2000" height="855" loading="lazy"></span>
+        <span class="shot__info">
+          <span class="shot__name">Dreadware</span>
+          <span class="shot__line">Jogo de terror no Roblox · Luau</span>
+          <span class="shot__cta">Abrir o projeto <span class="arrow" aria-hidden="true">→</span></span>
+        </span>
+      </a>
+    </div>
+  </aside>
+</div>
+
+<section class="contact" id="contacto" aria-labelledby="contacto-h">
+  <div data-reveal>
+    <h2 class="contact__prompt" id="contacto-h">Disponível para estágio no 2.º semestre de 2026/27. <span>Vamos conversar.</span></h2>
+    <div class="copy">
+      <a href="mailto:thomazbarrago@gmail.com">thomazbarrago@gmail.com</a>
+      <button type="button" data-copy="thomazbarrago@gmail.com" aria-describedby="copy-note">Copiar</button>
+    </div>
+    <p class="copy__note small" id="copy-note">Também estou no LinkedIn e no GitHub.</p>
+  </div>
+  <ul class="channels" data-reveal>
+    <li><span class="label">LinkedIn</span><a href="https://www.linkedin.com/in/thomaz-barrago/" rel="me">linkedin.com/in/thomaz-barrago</a></li>
+    <li><span class="label">GitHub pessoal</span><a href="https://github.com/ThomazCortez" rel="me">github.com/ThomazCortez</a></li>
+    <li><span class="label">GitHub do curso</span><a href="https://github.com/ThomazCortezESTG" rel="me">github.com/ThomazCortezESTG</a></li>
+    <li><span class="label">Localização</span><span>Leiria, Portugal</span></li>
+  </ul>
+</section>
+
+<footer class="footer">
+  <div class="footer__top">
+    <ul>
+      <li><a href="#projetos">Projetos</a></li>
+      <li><a href="#estagios">Estágios</a></li>
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+    <a class="footer__up" href="#topo">Voltar ao topo <span class="arrow" aria-hidden="true">↑</span></a>
+  </div>
+  <p class="footer__name" aria-hidden="true"><span>thomaz</span> <span>barrago</span></p>
+  <div class="footer__legal"><span>© 2026 Thomaz Barrago</span><a href="mailto:thomazbarrago@gmail.com">thomazbarrago@gmail.com</a></div>
+</footer>
+
+<script src="data/activity.js"></script>
+<script src="assets/js/site.js"></script>
+</body>
+</html>
