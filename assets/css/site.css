@@ -216,14 +216,6 @@ input[type=range] { width: 100%; height: 32px; background: transparent; accent-c
 a:hover .more, .is-active .more, a:focus-visible .more { color: var(--accent-ink); }
 .m-only { display: none; }
 
-/* Academic projects: an active list. */
-.list__item { padding: 22px 0; cursor: default; }
-.list__row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
-.list__row .small { white-space: nowrap; }
-.list__row .h3 { color: var(--muted); transition: color 240ms; }
-.list__item.is-active .list__row .h3 { color: var(--ink); }
-.list__item .list__more { margin-top: 10px; }
-.list__item a { text-decoration: none; }
 .tag { display: inline-block; font-size: 14px; color: #fff; background: var(--ink); padding: 3px 10px; border-radius: 999px; vertical-align: middle; }
 .tag--live { background: var(--accent); }
 
@@ -238,14 +230,28 @@ a:hover .more, .is-active .more, a:focus-visible .more { color: var(--accent-ink
 .facts dt { color: var(--muted); font-size: var(--step-small); padding-top: 4px; }
 .facts dd { font-size: var(--step-body); }
 
-.others li + li { margin-top: 40px; }
-.others a { display: block; text-decoration: none; }
-.others a:hover h3 { color: var(--accent-ink); }
-.others h3 { transition: color 200ms; }
-.others h3 { font-size: var(--step-3); font-weight: 500; letter-spacing: -0.015em; }
-.others p { margin-top: 6px; }
 
 .read__end { height: clamp(80px, 12vh, 140px); }
+
+/* ---------- Other projects: a grid of cards, every screenshot in view ---------- */
+.others-grid { padding: clamp(24px, 4vw, 56px) var(--pad) var(--section-gap); }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gutter); }
+.card {
+  display: flex; flex-direction: column; height: 100%;
+  border-radius: var(--radius); overflow: hidden; background: var(--surface);
+  text-decoration: none; transition: background-color 240ms var(--ease-out);
+}
+.card:hover { background: #d8d7d1; }
+.card__media { display: block; aspect-ratio: 16 / 10; overflow: hidden; background: var(--stage); }
+.card__media img { width: 100%; height: 100%; object-fit: cover; object-position: left top; transition: transform 600ms var(--ease-out); }
+.card:hover .card__media img { transform: scale(1.03); }
+.card__body { display: flex; flex-direction: column; flex: 1; padding: 22px 24px 24px; }
+.card__tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.card__name { margin-top: 14px; font-size: var(--step-3); font-weight: 500; line-height: 1.3; letter-spacing: -0.015em; transition: color 200ms; }
+.card:hover .card__name { color: var(--accent-ink); }
+.card__line { margin-top: 8px; font-size: 16px; line-height: 1.5; }
+.card .work__stack { margin-top: 14px; }
+.card .more { margin-top: auto; padding-top: 18px; }
 
 /* ---------- Internships: a full-width field of ink ---------- */
 .field {
@@ -372,6 +378,7 @@ a:hover .more, .is-active .more, a:focus-visible .more { color: var(--accent-ink
 @media (max-width: 1080px) {
   .jobs li { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
   .jobs .what { grid-column: 2; }
+  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .p-hero, .p-body { grid-template-columns: minmax(0, 1fr); }
   .p-side { position: static; }
   .p-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -397,10 +404,11 @@ a:hover .more, .is-active .more, a:focus-visible .more { color: var(--accent-ink
   .work__shot { margin-bottom: 18px; border-radius: 14px; overflow: hidden; aspect-ratio: 16 / 10; background: var(--stage); }
   .work__shot img { width: 100%; height: 100%; object-fit: cover; object-position: left top; }
   .work__name { color: var(--ink); font-size: 11vw; }
-  .list__row .h3 { color: var(--ink); }
   .block__head { flex-direction: column; align-items: flex-start; }
   .block__head p { text-align: left; }
-  .field { margin: var(--section-gap) 0 0; border-radius: 0; }
+  .field { margin: 0; border-radius: 0; }
+  .cards { grid-template-columns: minmax(0, 1fr); }
+  .others-grid { padding: var(--section-gap) var(--pad); }
   .field__head { grid-template-columns: minmax(0, 1fr); }
   .jobs li { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .jobs .what { grid-column: auto; }
