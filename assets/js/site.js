@@ -1,4 +1,4 @@
-// Portefólio: matriz de atividade, palco fixo, entradas e copiar email.
+// Portefólio: matriz de atividade, entradas e copiar email.
 document.documentElement.classList.add('js');
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -162,42 +162,6 @@ function buildMatrix(root) {
 }
 
 document.querySelectorAll('.matrix').forEach(buildMatrix);
-
-/* ---------- The stage follows the reading column ---------- */
-document.querySelectorAll('.split').forEach((split) => {
-  const layers = [...split.querySelectorAll('.stage [data-layer]')];
-  if (!layers.length) return;
-  const fallback = layers[0].dataset.layer;
-  const triggers = [...split.querySelectorAll('[data-stage]')];
-  let active = null;
-
-  function activate(id) {
-    if (id === active) return;
-    const previous = layers.find((l) => l.dataset.layer === active);
-    active = id;
-    layers.forEach((l) => l.classList.remove('is-leaving'));
-    if (previous && !reduceMotion) {
-      previous.classList.add('is-leaving');
-      setTimeout(() => previous.classList.remove('is-leaving'), 700);
-    }
-    layers.forEach((l) => l.classList.toggle('is-active', l.dataset.layer === id));
-    triggers.forEach((t) => t.classList.toggle('is-active', t.dataset.stage === id));
-  }
-  activate(fallback);
-
-  const visible = new Map();
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((e) => visible.set(e.target, e.isIntersecting));
-    const first = triggers.find((t) => visible.get(t));
-    activate(first ? first.dataset.stage : fallback);
-  }, { rootMargin: '-42% 0px -42% 0px' });
-  triggers.forEach((t) => io.observe(t));
-
-  triggers.forEach((t) => {
-    t.addEventListener('pointerenter', () => activate(t.dataset.stage));
-    t.addEventListener('focusin', () => activate(t.dataset.stage));
-  });
-});
 
 /* ---------- From the hero straight to the projects ----------
    On a wide screen, the first nudge downwards from the very top glides to "Projetos web",

@@ -115,6 +115,7 @@ export const projects = [
   },
   {
     slug: 'securechat',
+    listed: false,
     name: 'SecureChat',
     lead: 'Um chat de grupo em que as mensagens viajam cifradas e assinadas.',
     facts: { Ano: '2026, 1.º ano do CTeSP', Papel: 'Equipa de 2, com Paulo', Estado: 'Concluído', Tecnologias: 'C#, Windows Forms, TCP, SQL Server' },
@@ -140,6 +141,7 @@ export const projects = [
   },
   {
     slug: 'ishopping',
+    listed: false,
     name: 'iShopping',
     lead: 'Planear as compras do mês dentro de um orçamento, com recibo no fim.',
     facts: { Ano: '2026, 1.º ano do CTeSP', Papel: 'Equipa de 2, com Paulo', Estado: 'Concluído', Tecnologias: 'C#, Entity Framework, SQL Server' },

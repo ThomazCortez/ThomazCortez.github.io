@@ -42,6 +42,15 @@ body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
+/* Scrollbar: a slim ink thumb on the paper ground, red while held. */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #a9a8a2; border-radius: 999px; border: 3px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink); }
+::-webkit-scrollbar-thumb:active { background: var(--accent); }
+@supports not selector(::-webkit-scrollbar) {
+  html { scrollbar-width: thin; scrollbar-color: #a9a8a2 var(--bg); }
+}
 img, svg { display: block; max-width: 100%; }
 a { color: inherit; }
 h1, h2, h3, p, ul, ol, dl, dd, figure { margin: 0; }
@@ -89,66 +98,20 @@ ul, ol { padding: 0; list-style: none; }
 .arrow { transition: transform 200ms var(--ease-out); }
 a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
 
-/* ---------- The split: reading column + fixed stage ---------- */
-.split {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--gutter);
-  padding: var(--gutter);
+/* ---------- Top: the hero beside the activity matrix ---------- */
+.top {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--gutter); padding: var(--gutter);
 }
-.read { padding: 0 var(--pad); min-width: 0; }
-.stage {
-  position: sticky; top: var(--gutter);
-  height: calc(100svh - var(--gutter) * 2);
-  border-radius: var(--radius);
-  background: var(--stage); color: var(--stage-ink);
-  overflow: hidden;
-}
-.stage__layer { position: absolute; inset: 0; display: none; }
-.stage__layer.is-active { display: block; }
-/* Hidden layers keep their pictures loaded, but never their words, so no text sits under another layer. */
-@media (prefers-reduced-motion: no-preference) {
-  .stage__layer { display: block; opacity: 0; visibility: hidden; }
-  .stage__layer:not(.is-active) .shot__info, .stage__layer:not(.is-active) .photo__bar { display: none; }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .stage__layer.is-active { visibility: visible; animation: layer-in 700ms var(--ease-out) both; z-index: 1; }
-  .stage__layer.is-leaving { visibility: visible; animation: layer-out 700ms var(--ease-out) both; pointer-events: none; }
-  @keyframes layer-in { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes layer-out { from { opacity: 1; } to { opacity: 0; } }
+.top > .hero { padding: 0 var(--pad); min-width: 0; }
+.top__matrix {
+  position: relative; min-height: calc(100svh - var(--gutter) * 2);
+  border-radius: var(--radius); background: var(--stage); color: var(--stage-ink); overflow: hidden;
 }
 
-/* A project on the stage: the whole screenshot, its name and a way in. */
-.shot {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column; justify-content: center; gap: clamp(24px, 4vh, 40px);
-  padding: clamp(24px, 3vw, 44px);
-  color: var(--stage-ink); text-decoration: none;
-}
-.shot__media { display: block; min-height: 0; border-radius: 12px; overflow: hidden; background: #1c1c1c; }
-.shot__media img {
-  width: 100%; height: auto; max-height: 58svh; object-fit: contain;
-  transform: scale(1.03); transition: transform 6s var(--ease-out);
-}
-.stage__layer.is-active .shot__media img { transform: scale(1); }
-.shot__info { display: flex; flex-direction: column; gap: 10px; }
-.shot__name { font-family: var(--font-display); font-weight: 900; font-size: var(--step-2); line-height: 1; letter-spacing: -0.02em; }
-.shot__line { font-size: var(--step-body); color: var(--stage-muted); }
-.shot__cta { display: inline-flex; gap: 10px; margin-top: 6px; font-size: var(--step-body); color: #ff6b70; }
-.shot:hover .shot__cta .arrow { transform: translateX(4px); }
-
-/* A photograph filling the stage, with a paper bar across its foot. */
-.photo { position: absolute; inset: 0; display: flex; flex-direction: column; }
-.photo img { flex: 1; min-height: 0; width: 100%; object-fit: cover; object-position: 50% 30%; }
-.photo__bar {
-  min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
-  padding: 16px 24px; background: var(--bg); color: var(--ink); font-size: var(--step-small);
-}
-.photo__bar span:last-child { color: var(--muted); }
 /* Placeholder until there is a portrait: the TB monogram in dots. */
-.photo-ph { flex: 1; min-height: 0; display: grid; place-items: center; background: var(--stage); }
-.photo-ph svg { width: min(52%, 360px); height: auto; }
-.portrait--ph { display: grid; place-items: center; background: var(--stage); color: var(--stage-ink); font: 900 22px/1 var(--font-display); letter-spacing: -0.02em; }
+.photo-ph { display: grid; place-items: center; background: var(--stage); }
+.photo-ph svg { width: min(56%, 300px); height: auto; }
 
 /* ---------- Hero ---------- */
 .hero { min-height: calc(100svh - var(--gutter) * 2); display: flex; flex-direction: column; }
@@ -173,7 +136,6 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
 
 /* ---------- The activity matrix (the live thing) ---------- */
 .matrix { position: absolute; inset: 0; display: flex; flex-direction: column; padding: clamp(24px, 3vw, 44px); }
-.matrix__top { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; font-size: var(--step-small); color: var(--stage-muted); }
 .matrix__count { margin-top: auto; }
 .matrix__count .display { font-size: var(--step-display); color: var(--stage-ink); }
 .matrix__count p { margin-top: 12px; font-size: var(--step-3); line-height: 1.3; color: var(--stage-ink); max-width: 22ch; }
@@ -190,68 +152,73 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
 .matrix__scrub label { display: block; font-size: 14px; color: var(--stage-muted); margin-bottom: 6px; }
 input[type=range] { width: 100%; height: 32px; background: transparent; accent-color: var(--accent); cursor: pointer; }
 
-/* ---------- Sections in the reading column ---------- */
-.block { padding-top: var(--section-gap); }
+/* ---------- Sections ---------- */
+.section { padding: clamp(72px, 9vw, 128px) var(--pad); }
 /* The first section follows the hero closely, so scrolling never lands on an empty band. */
 #projetos { padding-top: clamp(28px, 4vh, 48px); scroll-margin-top: 0; }
 .block__head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 48px; }
-.block__head p { max-width: 24ch; text-align: right; }
+.block__head p { max-width: 28ch; text-align: right; }
 
-/* Project index: big names, the stage shows the active one. */
-.work li + li { margin-top: clamp(72px, 8vw, 112px); }
-.work__item { display: block; text-decoration: none; }
+/* Web projects: text on the left, the screenshot beside it. */
+.work li + li { margin-top: clamp(56px, 7vw, 104px); }
+.work__item {
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(28px, 4vw, 72px); align-items: center; text-decoration: none;
+}
 .work__name {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
   font-family: var(--font-display); font-weight: 900;
   font-size: clamp(40px, 4.4vw, 72px); line-height: .95; letter-spacing: -0.02em;
-  color: var(--muted); transition: color 240ms var(--ease-out);
+  color: var(--ink); transition: color 240ms var(--ease-out);
 }
-.work__name .arrow { font-family: var(--font-text); font-weight: 400; font-size: .5em; }
-.work__item.is-active .work__name, .work__item:hover .work__name, .work__item:focus-visible .work__name { color: var(--ink); }
-.work__item.is-active .work__name .arrow { color: var(--accent); }
+.work__item:hover .work__name, .work__item:focus-visible .work__name { color: var(--accent); }
 .work__meta { margin-top: 14px; }
 .work__line { margin-top: 8px; max-width: 40ch; }
 .work__stack { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--step-small); color: var(--muted); }
+.work__shot { border-radius: 16px; overflow: hidden; aspect-ratio: 16 / 10; background: var(--stage); }
+.work__shot img { width: 100%; height: 100%; object-fit: cover; object-position: left top; transition: transform 600ms var(--ease-out); }
+.work__item:hover .work__shot img { transform: scale(1.025); }
 .more { display: inline-flex; gap: 8px; margin-top: 14px; font-size: 16px; font-weight: 500; color: var(--ink); }
-a:hover .more, .is-active .more, a:focus-visible .more { color: var(--accent-ink); }
-.m-only { display: none; }
+a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
 
 .tag { display: inline-block; font-size: 14px; color: #fff; background: var(--ink); padding: 3px 10px; border-radius: 999px; vertical-align: middle; }
 .tag--live { background: var(--accent); }
 
-/* About: a letter. */
-.letter p + p { margin-top: 1.1em; }
-.letter mark { background: #f3c7c9; color: inherit; padding: 0 .15em; }
-.letter__sign { margin-top: 36px; display: flex; align-items: center; gap: 16px; }
-.portrait { width: 64px; height: 64px; border-radius: 50%; flex: none; object-fit: cover; object-position: 50% 28%; }
-.letter__sign strong { display: block; font-size: var(--step-3); font-weight: 500; line-height: 1.3; }
-
-.facts { display: grid; grid-template-columns: 9.5em 1fr; gap: 14px 24px; margin-top: 64px; }
-.facts dt { color: var(--muted); font-size: var(--step-small); padding-top: 4px; }
-.facts dd { font-size: var(--step-body); }
-
-
-.read__end { height: clamp(80px, 12vh, 140px); }
-
-/* ---------- Other projects: a grid of cards, every screenshot in view ---------- */
-.others-grid { padding: clamp(24px, 4vw, 56px) var(--pad) var(--section-gap); }
+/* Other projects: three ink cards with a hairline edge. */
+#outros { padding-top: clamp(48px, 6vw, 88px); }
 .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gutter); }
 .card {
   display: flex; flex-direction: column; height: 100%;
-  border-radius: var(--radius); overflow: hidden; background: var(--surface);
-  text-decoration: none; transition: background-color 240ms var(--ease-out);
+  border-radius: var(--radius); overflow: hidden;
+  background: var(--stage); color: var(--stage-ink); border: 1px solid #2c2c2b;
+  text-decoration: none; transition: border-color 240ms var(--ease-out);
 }
-.card:hover { background: #d8d7d1; }
-.card__media { display: block; aspect-ratio: 16 / 10; overflow: hidden; background: var(--stage); }
+.card:hover, .card:focus-visible { border-color: var(--accent); }
+.card__media { display: block; aspect-ratio: 16 / 10; overflow: hidden; border-bottom: 1px solid #2c2c2b; }
 .card__media img { width: 100%; height: 100%; object-fit: cover; object-position: left top; transition: transform 600ms var(--ease-out); }
 .card:hover .card__media img { transform: scale(1.03); }
 .card__body { display: flex; flex-direction: column; flex: 1; padding: 22px 24px 24px; }
 .card__tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.card .tag { background: #2c2c2b; color: var(--stage-ink); }
+.card .tag--live { background: var(--accent); color: #fff; }
 .card__name { margin-top: 14px; font-size: var(--step-3); font-weight: 500; line-height: 1.3; letter-spacing: -0.015em; transition: color 200ms; }
-.card:hover .card__name { color: var(--accent-ink); }
-.card__line { margin-top: 8px; font-size: 16px; line-height: 1.5; }
-.card .work__stack { margin-top: 14px; }
-.card .more { margin-top: auto; padding-top: 18px; }
+.card:hover .card__name, .card:focus-visible .card__name { color: var(--accent); }
+.card__line { margin-top: 8px; font-size: 16px; line-height: 1.5; color: var(--stage-ink); }
+.card .work__stack { margin-top: 14px; color: var(--stage-muted); }
+.card .more { margin-top: auto; padding-top: 18px; color: var(--stage-ink); }
+.card:hover .more, .card:focus-visible .more { color: #ff6b70; }
+.others-note { margin-top: 28px; max-width: 70ch; font-size: 16px; color: var(--muted); }
+
+/* About: the letter beside a modest portrait. */
+.about { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: clamp(40px, 6vw, 112px); align-items: start; }
+.about__photo { position: sticky; top: 32px; max-width: 380px; justify-self: end; width: 100%; }
+.about__photo .photo-ph { aspect-ratio: 4 / 5; border-radius: var(--radius); }
+.about__photo figcaption { margin-top: 12px; font-size: var(--step-small); color: var(--muted); }
+.letter p + p { margin-top: 1.1em; }
+.letter mark { background: #f3c7c9; color: inherit; padding: 0 .15em; }
+
+.facts { display: grid; grid-template-columns: 9.5em 1fr; gap: 14px 24px; margin-top: 56px; }
+.facts dt { color: var(--muted); font-size: var(--step-small); padding-top: 4px; }
+.facts dd { font-size: var(--step-body); }
 
 /* ---------- Internships: a full-width field of ink ---------- */
 .field {
@@ -276,7 +243,7 @@ a:hover .more, .is-active .more, a:focus-visible .more { color: var(--accent-ink
 .erasmus { color: #ff6b70; }
 
 /* ---------- Contact ---------- */
-.contact { padding: var(--section-gap) var(--pad) clamp(96px, 10vw, 160px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--gutter) calc(var(--pad) * 2); }
+.contact { background: var(--surface); padding: clamp(72px, 9vw, 128px) var(--pad); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--gutter) calc(var(--pad) * 2); }
 .contact__prompt { font-size: var(--step-2); font-weight: 500; line-height: 1.08; letter-spacing: -0.025em; }
 .contact__prompt span { color: var(--muted); display: block; }
 .copy {
@@ -378,51 +345,46 @@ a:hover .more, .is-active .more, a:focus-visible .more { color: var(--accent-ink
 @media (max-width: 1080px) {
   .jobs li { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
   .jobs .what { grid-column: 2; }
-  .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .about { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
   .p-hero, .p-body { grid-template-columns: minmax(0, 1fr); }
   .p-side { position: static; }
   .p-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 860px) {
   :root { --pad: 20px; --section-gap: 112px; --step-body: 17px; }
-  .split { grid-template-columns: minmax(0, 1fr); padding: var(--gutter) 0 0; gap: 0; }
-  .read { padding: 0 var(--pad); }
-  .split > .stage { display: none; }
+  .top { grid-template-columns: minmax(0, 1fr); padding: var(--gutter) 0 0; gap: 0; }
   .hero { min-height: auto; }
   .nav { padding-top: 16px; }
   .nav ul { gap: 16px; }
   .nav li:nth-child(n+3) { display: none; }
   .hero__body { padding: 56px 0 0; }
   .hero__body .display { font-size: 21vw; }
-  .m-only { display: block; }
-  .m-stage { position: relative; margin: 48px calc(var(--pad) * -1 + var(--gutter)) 0; height: auto; aspect-ratio: auto; top: 0; }
-  .m-stage .matrix { position: relative; inset: auto; min-height: 0; }
-  .m-stage .matrix__count .display { font-size: 22vw; }
-  .m-stage .matrix__count { order: 2; margin-top: 8px; }
-  .m-stage .matrix__grid { margin-top: 0; }
-  .m-stage .matrix__readout, .m-stage .matrix__scrub { order: 3; }
-  .work__shot { margin-bottom: 18px; border-radius: 14px; overflow: hidden; aspect-ratio: 16 / 10; background: var(--stage); }
-  .work__shot img { width: 100%; height: 100%; object-fit: cover; object-position: left top; }
-  .work__name { color: var(--ink); font-size: 11vw; }
+  .scroll-cue { display: none; }
+  .top__matrix { min-height: 0; margin: 48px var(--gutter) 0; }
+  .top__matrix .matrix { position: relative; inset: auto; }
+  .top__matrix .matrix__count .display { font-size: 22vw; }
+  .top__matrix .matrix__count { order: 2; margin-top: 8px; }
+  .top__matrix .matrix__grid { margin-top: 0; }
+  .top__matrix .matrix__readout, .top__matrix .matrix__scrub { order: 3; }
+  #projetos { padding-top: 72px; }
   .block__head { flex-direction: column; align-items: flex-start; }
   .block__head p { text-align: left; }
-  .field { margin: 0; border-radius: 0; }
+  .work__item { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .work__shot { order: -1; border-radius: 14px; }
+  .work__name { font-size: 11vw; }
   .cards { grid-template-columns: minmax(0, 1fr); }
-  .others-grid { padding: var(--section-gap) var(--pad); }
   .field__head { grid-template-columns: minmax(0, 1fr); }
   .jobs li { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .jobs .what { grid-column: auto; }
+  .about { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .about__text { display: contents; }
+  .about .block__head { order: -2; margin-bottom: 0; }
+  .about__photo { position: static; order: -1; justify-self: start; max-width: 240px; }
   .contact { grid-template-columns: minmax(0, 1fr); gap: 56px; }
   .channels li { grid-template-columns: minmax(0, 1fr); gap: 4px; }
   .facts { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .facts dd + dt { margin-top: 14px; }
-  .footer { margin: 0; border-radius: 0; }
   .footer__name { font-size: 16vw; white-space: normal; }
-  .scroll-cue { display: none; }
-  .read__end { display: none; }
-  .work__shot--photo { aspect-ratio: 4 / 3; margin-bottom: 32px; }
-  .work__shot--photo img { object-position: 50% 45%; }
-  .work__shot--photo.photo-ph { display: grid; }
   .footer__name span { display: block; }
   .p-media { margin: 40px 0 0; border-radius: 0; }
   .p-facts { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
@@ -433,5 +395,4 @@ a:hover .more, .is-active .more, a:focus-visible .more { color: var(--accent-ink
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; transition-delay: 0ms !important; }
-  .shot__media img { transform: none !important; }
 }

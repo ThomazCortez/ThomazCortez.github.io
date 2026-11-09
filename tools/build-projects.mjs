@@ -43,8 +43,12 @@ function gallery(p) {
   </div>`;
 }
 
-projects.forEach((p, i) => {
-  const next = projects[(i + 1) % projects.length];
+// Pages marked listed: false are still built, but left out of the "next project" chain.
+const chain = projects.filter((p) => p.listed !== false);
+
+projects.forEach((p) => {
+  const i = chain.indexOf(p);
+  const next = chain[(i + 1) % chain.length];
   const facts = Object.entries(p.facts).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('\n    ');
   const links = p.links.map((l, j) => `<a class="btn${j ? ' btn--ink' : ''}" href="${l.href}">${esc(l.label)} <span class="arrow" aria-hidden="true">→</span></a>`).join('\n          ');
   const side = p.side ? `
