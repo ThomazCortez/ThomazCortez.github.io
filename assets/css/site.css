@@ -252,7 +252,15 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
 .carousel__dot[aria-current="true"]::before { width: 26px; background: var(--ink); }
 .carousel__dot[aria-current="true"] { width: 42px; }
 
-.others-note { margin-top: 28px; max-width: 70ch; font-size: 16px; color: var(--muted); }
+/* Two smaller course apps, listed quietly under the carousel. */
+.also {
+  margin-top: clamp(40px, 5vw, 64px); padding-top: 28px; border-top: 1px solid rgba(18, 18, 18, .12);
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1.4fr); gap: 20px clamp(24px, 4vw, 64px);
+}
+.also__label { font-size: var(--step-body); font-weight: 500; }
+.also__label span { display: block; margin-top: 4px; font-size: var(--step-small); font-weight: 400; color: var(--muted); }
+.also__name { font-size: var(--step-body); font-weight: 500; }
+.also__item p { margin-top: 6px; font-size: 16px; line-height: 1.5; color: var(--muted); max-width: 44ch; }
 
 /* About: the letter beside a modest portrait. */
 .about { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: clamp(40px, 6vw, 112px); align-items: start; }
@@ -420,6 +428,7 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
   .work__shot::before { height: 24px; background-size: 10px 10px; }
   .work__name { font-size: 11vw; }
   .slide__link { grid-template-columns: minmax(0, 1fr); }
+  .also { grid-template-columns: minmax(0, 1fr); }
   .slide__media { border-right: 0; border-bottom: 1px solid #2c2c2b; }
   .carousel__arrow { width: 48px; height: 48px; }
   .field__head { grid-template-columns: minmax(0, 1fr); }
