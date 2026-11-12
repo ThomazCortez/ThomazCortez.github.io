@@ -6,11 +6,14 @@
   <title>Thomaz Barrago · Programador web júnior</title>
   <meta name="description" content="Portefólio de Thomaz Barrago, programador web júnior a estudar Programação de Sistemas de Informação na Universidade de Leiria Oeste. Projetos, estágios e contacto.">
   <meta name="theme-color" content="#ecebe7">
+  <link rel="alternate" hreflang="en" href="en/index.html">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:ROND,wght@100,900&family=Host+Grotesk:wght@400;500&display=swap">
   <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="expect" href="#fim" blocking="render">
+  <script src="assets/js/lang.js"></script>
 </head>
 <body>
 <a class="skip" href="#projetos">Saltar para os projetos</a>
@@ -25,6 +28,7 @@
         <li><a href="#estagios">Estágios</a></li>
         <li><a href="#sobre">Sobre</a></li>
         <li><a href="#contacto">Contacto</a></li>
+        <li class="nav__lang"><div class="lang" role="group" aria-label="Idioma"><span aria-current="true" title="Português">PT</span><a href="en/index.html" hreflang="en" lang="en" title="Read in English">EN</a></div></li>
       </ul>
     </nav>
 
@@ -174,7 +178,7 @@
 
 <section class="field" id="estagios" aria-labelledby="estagios-h">
   <div class="field__head" data-reveal>
-    <h2 class="display" id="estagios-h">Estágios</h2>
+    <h2 class="display" id="estagios-h" style="--len: 8">Estágios</h2>
     <p>Três estágios durante o secundário: dois em desenvolvimento web no Algarve e um Erasmus+ na Polónia.</p>
   </div>
   <ol class="jobs">
@@ -252,7 +256,7 @@
 </section>
 </main>
 
-<footer class="footer">
+<footer class="footer" id="fim">
   <div class="footer__top">
     <ul>
       <li><a href="#projetos">Projetos</a></li>

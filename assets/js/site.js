@@ -1,6 +1,12 @@
 // Portefólio: matriz de atividade, entradas e copiar email.
 document.documentElement.classList.add('js');
 
+// The page's language picks the strings below; the English pages live under en/.
+const EN = document.documentElement.lang.startsWith('en');
+const T = EN
+  ? { locale: 'en-GB', none: 'no contributions', one: '1 contribution', many: (n) => n + ' contributions', in: ' in ', copy: 'Copy', copied: 'Copied', copiedNote: 'The email is on your clipboard.', failed: (a) => "Couldn't copy it. The address is " + a + '.' }
+  : { locale: 'pt-PT', none: 'sem contribuições', one: '1 contribuição', many: (n) => n + ' contribuições', in: ' em ', copy: 'Copiar', copied: 'Copiado', copiedNote: 'O email está na área de transferência.', failed: (a) => 'Não foi possível copiar. O endereço é ' + a + '.' };
+
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const SVG = 'http://www.w3.org/2000/svg';
 
@@ -121,7 +127,7 @@ function buildMatrix(root) {
   const total = counts.reduce((a, b) => a + b, 0);
   root.querySelector('[data-total]').textContent = total;
 
-  const fmt = new Intl.DateTimeFormat('pt-PT', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  const fmt = new Intl.DateTimeFormat(T.locale, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
   const readout = root.querySelector('.matrix__readout');
   const range = root.querySelector('input[type=range]');
   range.max = counts.length - 1;
@@ -138,10 +144,10 @@ function buildMatrix(root) {
     const n = counts[i];
     const repos = data.repos[iso];
     readout.innerHTML = '';
-    readout.append(`${fmt.format(day)}: ${n === 0 ? 'sem contribuições' : n === 1 ? '1 contribuição' : n + ' contribuições'}`);
+    readout.append(`${fmt.format(day)}: ${n === 0 ? T.none : n === 1 ? T.one : T.many(n)}`);
     if (repos?.length) {
       const span = document.createElement('span');
-      span.textContent = ' em ' + repos.join(', ');
+      span.textContent = T.in + repos.join(', ');
       readout.append(span);
     }
     range.value = i;
@@ -282,11 +288,11 @@ document.querySelectorAll('[data-copy]').forEach((btn) => {
   btn.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(btn.dataset.copy);
-      btn.textContent = 'Copiado';
-      if (note) note.textContent = 'O email está na área de transferência.';
+      btn.textContent = T.copied;
+      if (note) note.textContent = T.copiedNote;
     } catch {
-      if (note) note.textContent = 'Não foi possível copiar. O endereço é ' + btn.dataset.copy + '.';
+      if (note) note.textContent = T.failed(btn.dataset.copy);
     }
-    setTimeout(() => { btn.textContent = 'Copiar'; }, 2400);
+    setTimeout(() => { btn.textContent = T.copy; }, 2400);
   });
 });

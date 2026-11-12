@@ -118,9 +118,16 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
 .nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 28px; }
 .wordmark { font-family: var(--font-display); font-weight: 900; font-size: 28px; line-height: 1; letter-spacing: -0.02em; text-decoration: none; }
 .wordmark i { font-style: normal; color: var(--accent); }
-.nav ul { display: flex; gap: clamp(14px, 2vw, 28px); }
+.nav ul { display: flex; align-items: center; gap: clamp(14px, 2vw, 28px); }
 .nav a { text-decoration: none; font-size: var(--step-body); color: var(--ink); transition: color 160ms; }
 .nav a:hover { color: var(--accent-ink); }
+.nav__end { display: flex; align-items: center; gap: clamp(14px, 2vw, 28px); }
+/* PT / EN: the current language is a filled ink pill, the other one a link to the same page in that language. */
+.lang { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border: 1px solid #c9c8c2; border-radius: 999px; font-size: var(--step-small); font-weight: 500; letter-spacing: 0.04em; line-height: 1; }
+.nav .lang a, .lang span { padding: 8px 12px; border-radius: 999px; }
+.lang span { background: var(--ink); color: var(--bg); }
+.nav .lang a { color: var(--muted); }
+.nav .lang a:hover { color: var(--ink); }
 .hero__body { margin-top: auto; padding: 48px 0 clamp(32px, 6vh, 64px); }
 .scroll-cue { display: inline-flex; align-items: center; gap: 12px; align-self: flex-start; margin-bottom: clamp(24px, 4vh, 40px); font-size: 16px; color: var(--muted); text-decoration: none; transition: color 160ms; }
 .scroll-cue:hover { color: var(--ink); }
@@ -305,7 +312,8 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
   padding: clamp(56px, 8vw, 128px) var(--pad);
 }
 .field .small { color: var(--stage-muted); }
-.field__head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--gutter); align-items: end; margin-bottom: clamp(48px, 6vw, 88px); }
+/* The title keeps at least its own width ("Internships" is longer than "Estágios"), the text takes what is left. */
+.field__head { display: grid; grid-template-columns: minmax(max-content, 1fr) minmax(0, 1fr); gap: var(--gutter); align-items: end; margin-bottom: clamp(48px, 6vw, 88px); }
 
 .field__head p { font-size: var(--step-3); line-height: 1.35; max-width: 30ch; }
 .jobs li {
@@ -477,7 +485,10 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
   .hero { min-height: auto; }
   .nav { padding-top: 16px; }
   .nav ul { gap: 16px; }
-  .nav li:nth-child(n+3) { display: none; }
+  .nav__end { gap: 12px; }
+  .nav__back { white-space: nowrap; }
+  .nav .lang a, .lang span { padding: 8px 10px; }
+  .nav li:nth-child(n+3):not(.nav__lang) { display: none; }
   .hero__body { padding: 56px 0 0; }
   .hero__body .display { font-size: 21vw; }
   .scroll-cue { display: none; }
@@ -499,6 +510,8 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
   .slide__media { border-right: 0; border-bottom: 1px solid #2c2c2b; }
   .carousel__arrow { width: 48px; height: 48px; }
   .field__head { grid-template-columns: minmax(0, 1fr); }
+  /* On a phone the title fits the width by its length (--len, set in the HTML). */
+  .field__head .display { font-size: min(var(--step-display), calc((100vw - 2 * var(--pad)) / (var(--len, 8) * 0.62))); }
   .jobs li { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .jobs .what { grid-column: auto; }
   .about { grid-template-columns: minmax(0, 1fr); gap: 32px; }
@@ -523,4 +536,17 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; transition-delay: 0ms !important; }
+}
+
+/* ---------- Switching language: the pages cross-fade and the filled pill slides across (see assets/js/lang.js) ---------- */
+@view-transition { navigation: auto; }
+.lang [aria-current] { view-transition-name: lang-pill; }
+::view-transition-group(lang-pill) { animation-duration: 420ms; animation-timing-function: cubic-bezier(.65, 0, .35, 1); z-index: 2; }
+::view-transition-old(lang-pill), ::view-transition-new(lang-pill) { height: 100%; animation-duration: 420ms; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 320ms; animation-timing-function: var(--ease-out); }
+.lang-arrive [data-reveal] > * { opacity: 1 !important; transform: none !important; transition: none !important; }
+/* Before leaving, the pill already leans towards the language being chosen. */
+.lang a:active { background: #d6d5cf; }
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
 }
