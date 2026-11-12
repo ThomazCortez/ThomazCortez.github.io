@@ -3,6 +3,7 @@
 export const projects = [
   {
     slug: 'moonarrow',
+    video: { src: 'moonarrow-scroll.mp4', poster: 'moonarrow-scroll-poster.jpg', alt: 'Visita ao MoonArrow Studios: página inicial, fórum, marketplace e página sobre' },
     name: 'MoonArrow Studios',
     lead: 'Uma comunidade para quem faz jogos: um fórum para mostrar progresso e um marketplace para partilhar assets.',
     facts: { Ano: '2025, PAP do 12.º ano', Papel: 'Sozinho, do início ao fim', Resultado: '20 valores', Tecnologias: 'PHP, MySQL, Bootstrap, JavaScript' },
@@ -28,6 +29,7 @@ export const projects = [
   },
   {
     slug: 'devday',
+    video: { src: 'devday-scroll.mp4', poster: 'devday-scroll-poster.jpg', alt: 'Visita ao DevDay: lista de tarefas, kanban, estatísticas, horário e definições' },
     name: 'DevDay',
     lead: 'Um planeador diário para programadores: tarefas em lista ou kanban, pomodoro e meteorologia.',
     facts: { Ano: '2026', Papel: 'Projeto pessoal, sozinho', Estado: 'Online, GitHub Pages', Tecnologias: 'JavaScript, CSS, Firebase' },
@@ -52,6 +54,7 @@ export const projects = [
   },
   {
     slug: 'dailyfuel',
+    video: { src: 'dailyfuel-scroll.mp4', poster: 'dailyfuel-scroll-poster.jpg', alt: 'Visita ao DailyFuel: diário alimentar, progresso, lembretes e definições' },
     name: 'DailyFuel',
     lead: 'Um diário privado de calorias, peso e água, com lembretes para beber água e treinar.',
     facts: { Ano: '2026', Papel: 'Projeto pessoal, sozinho', Estado: 'Online, Cloudflare Pages', Tecnologias: 'Next.js, TypeScript, Supabase' },
@@ -76,6 +79,7 @@ export const projects = [
   },
   {
     slug: 'telepomba',
+    video: { src: 'telepomba-scroll.mp4', poster: 'telepomba-scroll-poster.jpg', alt: 'Página inicial do TelePomba a deslizar secção a secção' },
     name: 'TelePomba',
     lead: 'Um chat no browser, com mensagens em tempo real, grupos e envio de ficheiros.',
     facts: { Ano: '2025, 12.º ano', Papel: 'Scrum master e lead, equipa de 6', Estado: 'Projeto de turma', Tecnologias: 'PHP, Node.js, Socket.IO, MySQL' },
@@ -96,6 +100,7 @@ export const projects = [
   },
   {
     slug: 'petgesthotel',
+    video: { src: 'petgesthotel-scroll.mp4', poster: 'petgesthotel-scroll-poster.jpg', alt: 'Visita ao PetGestHotel: página inicial, sobre nós, entrar e criar conta' },
     name: 'PetGestHotel',
     lead: 'Um hotel para animais: reservas de quartos e serviços num site e numa app Android, ligados à mesma API.',
     facts: { Ano: '2026, em curso', Papel: 'Equipa de 3', Estado: 'Projeto final do 1.º semestre', Tecnologias: 'Yii2 Advanced, PHP, MySQL, Android' },
@@ -165,6 +170,7 @@ export const projects = [
   },
   {
     slug: 'lux',
+    video: { src: 'lux-scroll.mp4', poster: 'lux-scroll-poster.jpg', alt: 'O Lux a responder a uma pergunta com um modelo local' },
     name: 'Lux',
     lead: 'Um assistente de IA que corre todo no próprio computador: conversa, lê ficheiros e programa numa pasta.',
     facts: { Ano: '2026', Papel: 'Projeto pessoal, sozinho', Estado: 'Em uso', Tecnologias: 'Python, JavaScript, Ollama' },
@@ -184,28 +190,6 @@ export const projects = [
       ]]],
       ['Como funciona', ['Um servidor em Python fala com o Ollama, que corre os modelos no computador. A interface é feita em HTML, CSS e JavaScript e abre numa janela própria.']],
       ['O que aprendi', ['Como funcionam os modelos de linguagem por dentro de uma aplicação: contexto, ferramentas e limites de memória.']],
-    ],
-  },
-  {
-    slug: 'dreadware',
-    name: 'Dreadware',
-    lead: 'Um jogo de terror no Roblox: reparar computadores e fugir antes de o tempo acabar.',
-    facts: { Ano: '2026, em curso', Papel: 'Sozinho', Estado: 'Em desenvolvimento', Tecnologias: 'Luau, Roblox Studio, Rojo' },
-    image: { src: 'dreadware-exterior.webp', w: 2000, h: 855, alt: 'Personagem no exterior do mapa do Dreadware, à noite e com nevoeiro', caption: 'O mapa à noite, com o contador de computadores e o tempo restante.' },
-    gallery: [
-      { src: 'dreadware-interior.webp', w: 2000, h: 859, alt: 'Personagem num corredor do Dreadware com o assassino ao fundo', caption: 'O assassino a passar por uma palete partida.' },
-    ],
-    links: [],
-    body: [
-      ['O desafio', ['Fazer um jogo de terror multijogador completo, sozinho: mapa, mecânicas, animações e interface.']],
-      ['O que fiz', [[
-        'Objetivo com tempo: reparar computadores para revelar o código de saída.',
-        'Mecânicas de fuga, como saltar e partir paletes, e de ajuda, como curar e carregar outro jogador.',
-        'Animações próprias para cada ação.',
-        'Interface com o contador de computadores, o código e o relógio.',
-      ]]],
-      ['Como funciona', ['O código é escrito em Luau e sincronizado com o Roblox Studio através do Rojo, o que me deixa usar Git e o meu editor. As animações são geradas com scripts em Python.']],
-      ['O que aprendi', ['A lógica de um jogo multijogador, em que o servidor decide e os clientes só mostram, e como organizar um projeto grande sozinho.']],
     ],
   },
 ];

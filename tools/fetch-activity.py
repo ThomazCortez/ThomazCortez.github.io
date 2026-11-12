@@ -10,11 +10,12 @@ ACCOUNTS = ["ThomazCortez", "ThomazCortezESTG"]
 AUTHORS = {"ThomazCortez", "ThomazCortezESTG"}
 NAMES = {  # repo name -> name shown on the site
     "moonarrowstudios": "MoonArrow Studios", "devday": "DevDay", "DailyFuel": "DailyFuel",
-    "TelePomba": "TelePomba", "Lux": "Lux", "loop-The-Killer": "Dreadware (Roblox)",
+    "TelePomba": "TelePomba", "Lux": "Lux",
     "projetoTS_Thomaz_Paulo": "SecureChat", "PSI_DA_PL2_Thomaz_Paulo": "iShopping",
     "Mercury": "Mercury", "MercuryDev": "Mercury", "FrutigerCaf-": "FrutigerCafé",
     "towerDefenseMacro": "towerDefenseMacro", "FP-Markdown": "FP-Markdown",
 }
+HIDDEN = {"loop-The-Killer"}  # repos whose commits count but whose name is not shown
 
 
 def gh(*args):
@@ -46,6 +47,8 @@ for login in ACCOUNTS:
             if who not in AUTHORS:
                 continue
             date = c["commit"]["author"]["date"][:10]
+            if repo["name"] in HIDDEN:
+                continue
             repos_by_day[date].add(NAMES.get(repo["name"], repo["name"]))
 
 out = {

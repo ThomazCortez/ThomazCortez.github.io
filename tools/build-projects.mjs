@@ -1,5 +1,9 @@
 // Generates projetos/<slug>.html from tools/projects.mjs.
 // Usage: node tools/build-projects.mjs
+//
+// Each page follows the index: the name on the paper beside an ink panel that plays the project,
+// then the challenge beside a screenshot, what was built on a field of ink, more screens,
+// how it works and what was learned, and the next project as an ink card.
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -10,37 +14,34 @@ const out = join(root, 'projetos');
 mkdirSync(out, { recursive: true });
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const isExternal = (href) => /^https?:/.test(href);
 
-function body(sections) {
-  return sections.map(([title, parts]) => {
-    const html = parts.map((p) => Array.isArray(p)
-      ? `<ul>${p.map((li) => `<li>${esc(li)}</li>`).join('')}</ul>`
-      : `<p>${esc(p)}</p>`).join('\n        ');
-    return `<h2>${esc(title)}</h2>\n        ${html}`;
-  }).join('\n        ');
+function paragraphs(parts) {
+  return parts.map((p) => Array.isArray(p)
+    ? `<ul class="p-list">${p.map((li) => `\n          <li>${esc(li)}</li>`).join('')}\n        </ul>`
+    : `<p>${esc(p)}</p>`).join('\n        ');
 }
 
-function media(p) {
-  if (p.image) {
-    return `<figure class="p-media" data-reveal>
-    <img src="../assets/img/${p.image.src}" alt="${esc(p.image.alt)}" width="${p.image.w ?? 2880}" height="${p.image.h ?? 1800}">
-    <figcaption>${esc(p.image.caption)}</figcaption>
-  </figure>`;
-  }
-  return `<figure class="p-media" data-reveal>
-    <div class="p-media--glyph" data-glyph="${p.glyph}"></div>
-    <figcaption>Ainda sem capturas de ecrã. Ilustração em pontos.</figcaption>
-  </figure>`;
+// A picture inside the browser window used on the index cards (or bare, for a game).
+function shot(m, { dark = false, lazy = true, video = false } = {}) {
+  const w = m.w ?? (video ? 1280 : 2880), h = m.h ?? (video ? 800 : 1800);
+  const inner = video
+    ? `<video src="../assets/video/${m.src}" poster="../assets/img/${m.poster}" width="${w}" height="${h}" muted loop playsinline preload="metadata" aria-label="${esc(m.alt)}"></video>`
+    : `<img src="../assets/img/${m.src}" alt="${esc(m.alt)}" width="${w}" height="${h}"${lazy ? ' loading="lazy"' : ''}>`;
+  const cls = m.frame === false ? 'p-bare' : `work__shot${dark ? ' work__shot--dark' : ''}`;
+  return `<div class="${cls}">${inner}</div>`;
 }
 
-function gallery(p) {
-  if (!p.gallery?.length) return '';
-  return `<div class="p-gallery" data-reveal>
-    ${p.gallery.map((g) => `<figure>
-      <img src="../assets/img/${g.src}" alt="${esc(g.alt)}" width="${g.w ?? 2880}" height="${g.h ?? 1800}" loading="lazy">
-      <figcaption>${esc(g.caption)}</figcaption>
-    </figure>`).join('\n    ')}
-  </div>`;
+function figure(m) {
+  return `<figure class="p-fig">
+      ${shot(m)}
+      <figcaption>${esc(m.caption)}</figcaption>
+    </figure>`;
+}
+
+function action(l, primary) {
+  const ext = isExternal(l.href);
+  return `<a class="btn${primary ? '' : ' btn--ink'}" href="${l.href}"${ext ? ' target="_blank" rel="noopener"' : ''}>${esc(l.label)} <span class="arrow" aria-hidden="true">${ext ? '↗' : '→'}</span>${ext ? '<span class="sr-only"> (abre noutro separador)</span>' : ''}</a>`;
 }
 
 // Pages marked listed: false are still built, but left out of the "next project" chain.
@@ -49,13 +50,25 @@ const chain = projects.filter((p) => p.listed !== false);
 projects.forEach((p) => {
   const i = chain.indexOf(p);
   const next = chain[(i + 1) % chain.length];
-  const facts = Object.entries(p.facts).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('\n    ');
-  const links = p.links.map((l, j) => `<a class="btn${j ? ' btn--ink' : ''}" href="${l.href}">${esc(l.label)} <span class="arrow" aria-hidden="true">→</span></a>`).join('\n          ');
-  const side = p.side ? `
-        <figure>
-          <img src="../assets/img/${p.side.src}" alt="${esc(p.side.alt)}" width="${p.side.w ?? 2880}" height="${p.side.h ?? 1800}" loading="lazy">
-          <figcaption>${esc(p.side.caption)}</figcaption>
-        </figure>` : '';
+
+  // Pictures in the order they are used: the panel (when there is no video), the challenge, then the rest.
+  const pics = [p.image, p.side, ...(p.gallery ?? [])].filter(Boolean);
+  const stageMedia = p.video ? shot(p.video, { dark: true, video: true }) : shot(pics.shift(), { dark: true, lazy: false });
+  const introPic = pics.shift();
+  const morePics = pics;
+
+  // The body: the first part is the challenge, the part with a list is what was built, the rest sit side by side.
+  const [intro, ...restBody] = p.body;
+  const listIdx = restBody.findIndex(([, parts]) => parts.some(Array.isArray));
+  const built = listIdx >= 0 ? restBody.splice(listIdx, 1)[0] : null;
+
+  const longest = Math.max(...p.name.split(/\s+/).map((w) => w.length));
+  const facts = Object.entries(p.facts).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('\n        ');
+  const actions = p.links.length
+    ? p.links.map((l, j) => action(l, j === 0)).join('\n          ')
+    : `<a class="btn" href="../index.html#contacto">Falar sobre este projeto <span class="arrow" aria-hidden="true">→</span></a>`;
+
+  const nextPoster = next.video?.poster ?? next.image?.src;
 
   const html = `<!doctype html>
 <html lang="pt-PT">
@@ -64,54 +77,83 @@ projects.forEach((p) => {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${esc(p.name)} · Thomaz Barrago</title>
   <meta name="description" content="${esc(p.lead)}">
-  <meta name="theme-color" content="#ecebe7">
+  <meta name="theme-color" content="#ebebe8">
   <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:ROND,wght@100,900&family=Host+Grotesk:wght@400;500&display=swap">
   <link rel="stylesheet" href="../assets/css/site.css">
 </head>
-<body>
+<body class="project">
 <!-- Generated by tools/build-projects.mjs. Edit tools/projects.mjs instead. -->
-<header class="page-nav">
-  <a class="wordmark" href="../index.html" aria-label="Thomaz Barrago, início">thomaz<i>.</i></a>
-  <a href="../index.html#projetos"><span aria-hidden="true">←</span> Todos os projetos</a>
-</header>
+<a class="skip" href="#conteudo">Saltar para o conteúdo</a>
 
-<main>
-  <section class="p-hero" data-reveal>
-    <h1 class="display">${esc(p.name)}</h1>
-    <div>
+<div class="top p-top">
+  <div class="hero">
+    <header class="nav">
+      <a class="wordmark" href="../index.html" aria-label="Thomaz Barrago, início">thomaz<i>.</i></a>
+      <a class="nav__back" href="../index.html#projetos"><span class="arrow" aria-hidden="true">←</span> Todos os projetos</a>
+    </header>
+    <div class="hero__body" data-reveal>
+      <h1 class="display p-title" style="--len: ${longest}">${esc(p.name)}</h1>
       <p class="lead">${esc(p.lead)}</p>
-      <a class="btn p-hero__action" href="${p.links[0]?.href ?? '../index.html#contacto'}">${esc(p.links[0]?.label ?? 'Falar sobre este projeto')} <span class="arrow" aria-hidden="true">→</span></a>
+      <div class="hero__actions">
+          ${actions}
+      </div>
+    </div>
+  </div>
+  <div class="p-stage" data-reveal>
+    ${stageMedia}
+    <dl class="p-facts">
+        ${facts}
+    </dl>
+  </div>
+</div>
+
+<main id="conteudo">
+  <section class="section p-intro" aria-labelledby="desafio-h">
+    <div class="p-intro__text" data-reveal>
+      <h2 class="h2" id="desafio-h">${esc(intro[0])}</h2>
+      <div class="p-statement">
+        ${paragraphs(intro[1])}
+      </div>
+    </div>
+    ${introPic ? `<div data-reveal>\n    ${figure(introPic)}\n    </div>` : ''}
+  </section>
+${built ? `
+  <section class="field p-built" aria-labelledby="feito-h">
+    <div class="p-built__grid" data-reveal>
+      <h2 class="h2" id="feito-h">${esc(built[0])}</h2>
+      ${paragraphs(built[1])}
     </div>
   </section>
-
-  <dl class="p-facts" data-reveal>
-    ${facts}
-  </dl>
-
-  ${media(p)}
-
-  ${gallery(p)}
-
-  <section class="p-body">
-    <div class="p-body__text" data-reveal>
-        ${body(p.body)}
+` : ''}${morePics.length ? `
+  <section class="section p-more" aria-labelledby="ecras-h">
+    <h2 class="h2" id="ecras-h" data-reveal>Mais ecrãs</h2>
+    <div class="p-more__grid p-more__grid--${Math.min(morePics.length, 3)}" data-reveal>
+    ${morePics.map(figure).join('\n    ')}
     </div>
-    <aside class="p-side" data-reveal>
-      <h2 class="h2">${p.links.length ? 'Ver mais' : 'Em breve'}</h2>
-      <div class="actions">
-          ${links || '<p class="small">O código e uma demonstração ficam disponíveis quando o projeto avançar.</p>'}
-      </div>${side}
-    </aside>
+  </section>
+` : ''}
+  <section class="section p-notes" aria-label="Detalhes técnicos">
+    ${restBody.map(([title, parts]) => `<div class="p-note" data-reveal>
+      <h2 class="h3">${esc(title)}</h2>
+      ${paragraphs(parts)}
+    </div>`).join('\n    ')}
   </section>
 </main>
 
-<a class="p-next" href="${next.slug}.html">
-  <span class="display">${esc(next.name)}</span>
-  <span class="p-next__label">Projeto seguinte <span class="arrow" aria-hidden="true">→</span></span>
-</a>
+<nav class="p-next-wrap" aria-label="Projeto seguinte">
+  <a class="p-next" href="${next.slug}.html">
+    <span class="p-next__media"><img src="../assets/img/${nextPoster}" alt="" width="1280" height="800" loading="lazy"></span>
+    <span class="p-next__body">
+      <span class="p-next__label">Projeto seguinte</span>
+      <span class="p-next__name">${esc(next.name)}</span>
+      <span class="p-next__lead">${esc(next.lead)}</span>
+      <span class="more">Ver projeto <span class="arrow" aria-hidden="true">→</span></span>
+    </span>
+  </a>
+</nav>
 
 <footer class="footer">
   <div class="footer__top">

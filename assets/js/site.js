@@ -190,7 +190,7 @@ document.querySelectorAll('.matrix').forEach(buildMatrix);
 })();
 
 /* ---------- Project videos play only while on screen, and never when motion is unwelcome ---------- */
-document.querySelectorAll('.work__shot video').forEach((v) => {
+document.querySelectorAll('.work__shot video, .p-bare video').forEach((v) => {
   if (reduceMotion || !('IntersectionObserver' in window)) return;
   new IntersectionObserver(([e]) => {
     if (e.isIntersecting) v.play().catch(() => {}); else v.pause();
@@ -231,8 +231,8 @@ document.querySelectorAll('[data-carousel]').forEach((root) => {
     if (v) v.addEventListener('ended', () => { if (held || !inView) { v.currentTime = 0; v.play().catch(() => {}); } else go(index + 1); });
   });
 
-  root.querySelector('.carousel__arrow--prev').addEventListener('click', () => go(index - 1));
-  root.querySelector('.carousel__arrow--next').addEventListener('click', () => go(index + 1));
+  root.querySelector('.carousel__arrow--prev')?.addEventListener('click', () => go(index - 1));
+  root.querySelector('.carousel__arrow--next')?.addEventListener('click', () => go(index + 1));
   dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
   root.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft') { e.preventDefault(); go(index - 1); }
