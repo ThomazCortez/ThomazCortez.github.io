@@ -327,6 +327,12 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
 .jobs .what { font-size: var(--step-body); }
 .jobs .what .small { display: block; margin-top: 10px; }
 .erasmus { color: #ff6b70; }
+/* The company name links to its site: a quiet underline on the ink, brighter on hover. */
+.where__link { color: var(--stage-ink); text-decoration: none; }
+.where__name { text-decoration: underline; text-decoration-color: #5a5953; text-underline-offset: 3px; text-decoration-thickness: 1px; transition: text-decoration-color 160ms; }
+.where__link:hover .where__name { text-decoration-color: var(--stage-ink); }
+.where__link [aria-hidden] { display: inline-block; transition: transform 200ms var(--ease-out); }
+.where__link:hover [aria-hidden] { transform: translate(2px, -2px); }
 
 /* ---------- Contact ---------- */
 .contact { background: var(--surface); padding: clamp(72px, 9vw, 128px) var(--pad); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--gutter) calc(var(--pad) * 2); }
@@ -550,3 +556,45 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
 @media (prefers-reduced-motion: reduce) {
   @view-transition { navigation: none; }
 }
+
+/* ---------- Boot screen: first visit of the session only (see assets/js/boot.js) ---------- */
+/* Until the cover is in place the page stays dark, so nothing flashes behind it. */
+html.booting { overflow: hidden; background: var(--stage); }
+html.booting body { background: var(--stage); }
+html.booting body > :not(.boot) { visibility: hidden; }
+/* The hero waits under the cover and makes its entrance as the cover lifts. */
+.js.booting [data-reveal].is-in > * { opacity: 0; transform: translateY(24px); }
+
+.boot {
+  position: fixed; inset: 0; z-index: 100;
+  display: grid; place-content: center; justify-items: center; gap: clamp(28px, 4vw, 44px);
+  background: var(--stage); color: var(--stage-ink);
+  padding: 16px; cursor: progress;
+  transition: opacity 1400ms cubic-bezier(.4, 0, .2, 1);
+}
+.boot.is-out { opacity: 0; pointer-events: none; }
+
+.boot__hi {
+  font-family: var(--font-display); font-weight: 900;
+  font-size: clamp(44px, 7vw, 104px); line-height: 1; letter-spacing: -0.02em;
+  text-align: center; white-space: pre-wrap;
+}
+.boot__hi span, .boot__hi i { display: inline-block; opacity: 0; font-style: normal; }
+.boot__hi i { color: var(--accent); }
+/* Letters switch on one after another, like pixels, with no fade. */
+.boot.is-on .boot__hi span, .boot.is-on .boot__hi i { animation: boot-pixel 1ms steps(1) both; animation-delay: calc(var(--i) * 55ms); }
+@keyframes boot-pixel { to { opacity: 1; } }
+.boot.is-out .boot__hi { opacity: 0; transform: translateY(-16px); transition: opacity 300ms, transform 500ms var(--ease-out); }
+
+.boot__dots { display: flex; gap: 10px; }
+.boot__dots span {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--dot-off);
+  transition: background-color 120ms, box-shadow 200ms;
+}
+.boot__dots span.on { background: var(--stage-ink); box-shadow: 0 0 10px rgba(240, 240, 238, .35); }
+.boot__dots span.red { background: var(--accent); box-shadow: 0 0 12px rgba(215, 25, 33, .6); }
+.boot.is-out .boot__dots { opacity: 0; transition: opacity 250ms; }
+@media (max-width: 480px) { .boot__dots { gap: 8px; } .boot__dots span { width: 7px; height: 7px; } }
+/* On the way to the visitor's language (lang.js): show nothing of this page. */
+html.lang-redirect body { visibility: hidden; }

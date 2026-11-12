@@ -1,6 +1,26 @@
 // PT / EN switch without the jump: the two pages cross-fade (cross-document View Transitions),
 // the filled pill slides to the other language, and the new page opens where you were reading.
 // Loaded in <head> so it is listening before the new page is first shown.
+// First arrival from outside the site: pick the language for the visitor.
+// A choice made on the PT / EN switch always wins; without one, a browser that
+// doesn't speak Portuguese is sent to the English page. Moving around the site never redirects.
+(() => {
+  const root = document.documentElement;
+  const here = root.lang.startsWith('en') ? 'en' : 'pt';
+  const other = here === 'en' ? 'pt' : 'en';
+  let choice = null;
+  try { choice = localStorage.getItem('lang-choice'); } catch {}
+  let internal = false;
+  try { internal = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch {}
+  if (internal || choice === here) return;
+  const speaksPt = (navigator.languages?.length ? navigator.languages : [navigator.language || '']).some((l) => /^pt\b/i.test(l));
+  const go = choice === other || (!choice && here === 'pt' && !speaksPt);
+  const alt = document.querySelector(`link[rel="alternate"][hreflang="${other}"]`);
+  if (!go || !alt) return;
+  root.classList.add('lang-redirect'); // hides the page and stops the boot screen (boot.js)
+  location.replace(alt.href + location.hash);
+})();
+
 (() => {
   const KEY = 'lang-switch';
   const read = () => { try { return JSON.parse(sessionStorage.getItem(KEY)); } catch { return null; } };
@@ -37,6 +57,8 @@
     const a = e.target.closest?.('.lang a');
     if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     try { sessionStorage.setItem(KEY, JSON.stringify(where())); } catch {}
+    // Remember the choice, so the next visit opens in this language.
+    try { if (a.hreflang) localStorage.setItem('lang-choice', a.hreflang); } catch {}
   });
 
   // Only the language switch animates; every other link keeps loading as before.
