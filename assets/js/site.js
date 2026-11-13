@@ -1,11 +1,11 @@
-// Portefólio: matriz de atividade, entradas e copiar email.
+// Portefólio: números em pontos, entradas e copiar email.
 document.documentElement.classList.add('js');
 
 // The page's language picks the strings below; the English pages live under en/.
 const EN = document.documentElement.lang.startsWith('en');
 const T = EN
-  ? { locale: 'en-GB', none: 'no contributions', one: '1 contribution', many: (n) => n + ' contributions', in: ' in ', copy: 'Copy', copied: 'Copied', copiedNote: 'The email is on your clipboard.', failed: (a) => "Couldn't copy it. The address is " + a + '.' }
-  : { locale: 'pt-PT', none: 'sem contribuições', one: '1 contribuição', many: (n) => n + ' contribuições', in: ' em ', copy: 'Copiar', copied: 'Copiado', copiedNote: 'O email está na área de transferência.', failed: (a) => 'Não foi possível copiar. O endereço é ' + a + '.' };
+  ? { locale: 'en-GB', copy: 'Copy', copied: 'Copied', copiedNote: 'The email is on your clipboard.', failed: (a) => "Couldn't copy it. The address is " + a + '.' }
+  : { locale: 'pt-PT', copy: 'Copiar', copied: 'Copiado', copiedNote: 'O email está na área de transferência.', failed: (a) => 'Não foi possível copiar. O endereço é ' + a + '.' };
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const SVG = 'http://www.w3.org/2000/svg';
@@ -99,75 +99,239 @@ function drawGlyph(name, { pad = 1 } = {}) {
 
 document.querySelectorAll('[data-glyph]').forEach((el) => el.prepend(drawGlyph(el.dataset.glyph)));
 
-/* ---------- Activity matrix ---------- */
-function buildMatrix(root) {
-  const data = window.ACTIVITY;
-  if (!data) return;
-  const counts = data.counts;
-  const start = new Date(data.start + 'T12:00:00');
-  const offset = (start.getDay() + 6) % 7; // Monday first
-  const weeks = Math.ceil((counts.length + offset) / 7);
-  const s = 12;
-  const grid = root.querySelector('.matrix__grid');
+/* ---------- Em números: dot-matrix widgets on a phone, Nothing style ----------
+   Each figure is drawn on a 5×7 dot grid. The unlit dots stay visible, like on the phone's display.
+   They count up once the panel is on screen, and every few seconds a red scan runs across one of them. */
+const DIGITS = {
+  0: ['.XXX.', 'X...X', 'X...X', 'X...X', 'X...X', 'X...X', '.XXX.'],
+  1: ['..X..', '.XX..', '..X..', '..X..', '..X..', '..X..', '.XXX.'],
+  2: ['.XXX.', 'X...X', '....X', '...X.', '..X..', '.X...', 'XXXXX'],
+  3: ['XXXXX', '...X.', '..X..', '...X.', '....X', 'X...X', '.XXX.'],
+  4: ['...X.', '..XX.', '.X.X.', 'X..X.', 'XXXXX', '...X.', '...X.'],
+  5: ['XXXXX', 'X....', 'XXXX.', '....X', '....X', 'X...X', '.XXX.'],
+  6: ['..XX.', '.X...', 'X....', 'XXXX.', 'X...X', 'X...X', '.XXX.'],
+  7: ['XXXXX', '....X', '...X.', '..X..', '.X...', '.X...', '.X...'],
+  8: ['.XXX.', 'X...X', 'X...X', '.XXX.', 'X...X', 'X...X', '.XXX.'],
+  9: ['.XXX.', 'X...X', 'X...X', '.XXXX', '....X', '...X.', '.XX..'],
+  ',': ['..', '..', '..', '..', '.R', '.R', 'R.'],
+  '.': ['.', '.', '.', '.', '.', '.', 'R'],
+  ' ': ['.....', '.....', '.....', '.....', '.....', '.....', '.....'],
+};
+
+function buildStat(el) {
+  const target = el.dataset.value;             // "18,7", "18.7" or "879"
+  const sep = target.match(/[,.]/)?.[0];
+  const decimals = sep ? target.split(sep)[1].length : 0;
+  const end = Number(target.replace(sep, ''));  // 187 or 879
+  const s = 10;
+  const glyphs = [...target].map((c) => DIGITS[c]);
+  const width = glyphs.reduce((w, g) => w + g[0].length + 1, -1);
+
   const svg = document.createElementNS(SVG, 'svg');
-  svg.setAttribute('viewBox', `0 0 ${weeks * s} ${7 * s}`);
+  svg.setAttribute('viewBox', `0 0 ${width * s} ${7 * s}`);
   svg.setAttribute('aria-hidden', 'true');
-  const dots = counts.map((n, i) => {
-    const k = i + offset;
-    const c = document.createElementNS(SVG, 'circle');
-    c.setAttribute('cx', Math.floor(k / 7) * s + s / 2);
-    c.setAttribute('cy', (k % 7) * s + s / 2);
-    c.setAttribute('r', 3.9);
-    c.setAttribute('class', n === 0 ? '' : n < 3 ? 'l1' : n < 7 ? 'l2' : 'l3');
-    svg.appendChild(c);
-    return c;
+  const cells = []; // one entry per character: its rows of circles
+  let x = 0;
+  glyphs.forEach((g) => {
+    const cols = g[0].length;
+    const rows = g.map((_, r) => Array.from({ length: cols }, (_, c) => {
+      const dot = document.createElementNS(SVG, 'circle');
+      dot.setAttribute('cx', (x + c) * s + s / 2);
+      dot.setAttribute('cy', r * s + s / 2);
+      dot.setAttribute('r', 3.6);
+      dot.dataset.col = x + c;
+      svg.appendChild(dot);
+      return dot;
+    }));
+    cells.push(rows);
+    x += cols + 1;
   });
-  grid.appendChild(svg);
+  el.appendChild(svg);
+  const dots = [...svg.querySelectorAll('circle')];
 
-  const total = counts.reduce((a, b) => a + b, 0);
-  root.querySelector('[data-total]').textContent = total;
-
-  const fmt = new Intl.DateTimeFormat(T.locale, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-  const readout = root.querySelector('.matrix__readout');
-  const range = root.querySelector('input[type=range]');
-  range.max = counts.length - 1;
-  let current = -1;
-
-  function show(i) {
-    if (i === current) return;
-    if (current >= 0) dots[current].classList.remove('is-on');
-    current = i;
-    dots[i].classList.add('is-on');
-    const day = new Date(start);
-    day.setDate(start.getDate() + i);
-    const iso = day.toISOString().slice(0, 10);
-    const n = counts[i];
-    const repos = data.repos[iso];
-    readout.innerHTML = '';
-    readout.append(`${fmt.format(day)}: ${n === 0 ? T.none : n === 1 ? T.one : T.many(n)}`);
-    if (repos?.length) {
-      const span = document.createElement('span');
-      span.textContent = T.in + repos.join(', ');
-      readout.append(span);
-    }
-    range.value = i;
+  // Writes a number into the grid, right-aligned; leading places stay dark.
+  function paint(n) {
+    let txt = String(n).padStart(decimals + 1, '0');
+    if (decimals) txt = txt.slice(0, -decimals) + sep + txt.slice(-decimals);
+    txt = txt.padStart(target.length, ' ');
+    [...txt].forEach((ch, i) => {
+      const g = DIGITS[ch];
+      cells[i].forEach((row, r) => row.forEach((dot, c) => {
+        const v = g[r][c];
+        dot.classList.toggle('on', v === 'X');
+        dot.classList.toggle('red', v === 'R');
+      }));
+    });
   }
 
-  const busiest = counts.indexOf(Math.max(...counts));
-  show(busiest);
-  range.addEventListener('input', () => show(+range.value));
+  function count(delay) {
+    const dur = 1300;
+    const t0 = performance.now() + delay;
+    // Driven by the clock, not by frames, so it always lands on the real figure.
+    const step = () => {
+      const p = Math.min(1, Math.max(0, (performance.now() - t0) / dur));
+      paint(Math.round(end * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) setTimeout(step, 16);
+    };
+    step();
+  }
 
-  svg.addEventListener('pointermove', (e) => {
-    const r = svg.getBoundingClientRect();
-    const col = Math.floor(((e.clientX - r.left) / r.width) * weeks);
-    const row = Math.floor(((e.clientY - r.top) / r.height) * 7);
-    if (col < 0 || row < 0 || row > 6 || col >= weeks) return;
-    const i = col * 7 + row - offset;
-    if (i >= 0 && i < counts.length) show(i);
-  });
+  // A red line sweeps across the figure, left to right.
+  function scan() {
+    for (let c = 0; c < width; c++) {
+      setTimeout(() => {
+        const col = dots.filter((d) => +d.dataset.col === c);
+        col.forEach((d) => d.classList.add('hot'));
+        setTimeout(() => col.forEach((d) => d.classList.remove('hot')), 160);
+      }, c * 28);
+    }
+  }
+
+  paint(reduceMotion ? end : 0);
+  return { count, scan, el };
 }
 
-document.querySelectorAll('.matrix').forEach(buildMatrix);
+(() => {
+  const panel = document.querySelector('.stats');
+  if (!panel) return;
+  const stats = [...panel.querySelectorAll('[data-value]')].map(buildStat);
+
+  // The phone's lock screen shows the visitor's own time and date.
+  const clock = document.querySelector('[data-clock]');
+  const date = document.querySelector('[data-date]');
+  const tick = () => {
+    const now = new Date();
+    clock.textContent = now.toLocaleTimeString(T.locale, { hour: '2-digit', minute: '2-digit' });
+    if (date) date.textContent = now.toLocaleDateString(T.locale, { weekday: 'short', day: 'numeric', month: 'short' }).replace(/\./g, '');
+  };
+  if (clock) { tick(); setInterval(tick, 15000); }
+  if (reduceMotion) return;
+
+  let started = false;
+  const root = document.documentElement;
+  const go = () => {
+    if (started || root.classList.contains('booting')) return;
+    started = true;
+    stats.forEach((st, i) => st.count(i * 110));
+    // Afterwards, now and then, one figure gets scanned.
+    setInterval(() => {
+      if (document.hidden) return;
+      stats[Math.floor(Math.random() * stats.length)].scan();
+    }, 3800);
+  };
+
+  let visible = false;
+  new MutationObserver(() => visible && go()).observe(root, { attributes: true, attributeFilter: ['class'] });
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) go(); }, { threshold: 0.3 }).observe(panel);
+  } else { visible = true; go(); }
+})();
+
+/* ---------- The phone as a 3D object ----------
+   The body is a stack of thin slabs behind the front face, so the rounded sides have real depth,
+   closed by two flat walls and a back plate. It rests turned towards the text, leans a little with
+   the pointer, faces the reader when pointed at, and can be dragged all the way round. */
+(() => {
+  const phone = document.querySelector('.phone');
+  if (!phone || !CSS.supports('transform-style', 'preserve-3d')) return;
+
+  const SLABS = 16, GAP = 2; // 32px deep
+  const el = (tag, cls) => { const n = document.createElement(tag); n.className = cls; n.setAttribute('aria-hidden', 'true'); return n; };
+
+  const back = el('div', 'phone__back');
+  back.innerHTML = '<div class="phone__plate">'
+    + '<div class="phone__cams"><i class="phone__lens"></i><i class="phone__lens"></i></div><i class="phone__flash"></i>'
+    + '<div class="phone__glyph"></div>'
+    + '<p class="phone__mark">thomaz<i>.</i></p><p class="phone__fine">HTML · CSS · JS</p></div>';
+  back.querySelector('.phone__glyph').append(drawGlyph('monogram', { pad: 2 }));
+  back.style.transform = `translateZ(${-(SLABS * GAP + 1)}px) rotateY(180deg)`;
+  phone.prepend(back, el('i', 'phone__wall'), el('i', 'phone__wall phone__wall--right'));
+
+  for (let i = SLABS; i >= 1; i--) {
+    const t = (i - 1) / (SLABS - 1);            // 0 at the front, 1 at the back
+    const l = 60 - 30 * t + 16 * Math.exp(-(((t - 0.22) / 0.1) ** 2)); // a highlight runs along the rail
+    const slab = el('i', 'phone__slab' + (i >= 6 && i <= 11 ? ' phone__slab--keys' : ''));
+    slab.style.transform = `translateZ(${-i * GAP}px)`;
+    slab.style.background = `linear-gradient(180deg, hsl(60 3% ${l + 9}%), hsl(60 3% ${l}%) 30%, hsl(60 3% ${l - 12}%))`;
+    phone.prepend(slab);
+  }
+
+  // The stage holds what does not turn with the phone: its shadow and the hint.
+  const stage = el('div', 'phone-stage');
+  stage.removeAttribute('aria-hidden');
+  phone.before(stage);
+  stage.append(el('i', 'phone__shadow'), phone);
+  phone.classList.add('is-3d');
+  if (reduceMotion) return;
+
+  const hint = el('p', 'phone__hint');
+  hint.textContent = EN ? 'Drag to turn it around' : 'Arrasta para o rodar';
+  stage.append(hint);
+
+  const REST = { x: 5, y: -24 }, FACING = { x: 2, y: -7 };
+  const cur = { ...REST }, goal = { ...REST };
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  let over = false, held = false, drag = null, px = 0, py = 0, raf = 0, timer = 0;
+
+  const aim = () => {
+    if (!drag && !held) {
+      const base = over ? FACING : REST;
+      const turns = Math.round((cur.y - base.y) / 360) * 360; // come back the short way round
+      goal.y = turns + base.y + px * 7;
+      goal.x = base.x - py * 5;
+    }
+    if (!raf) raf = requestAnimationFrame(step);
+  };
+  const step = () => {
+    const k = drag ? 0.3 : 0.09;
+    cur.x += (goal.x - cur.x) * k;
+    cur.y += (goal.y - cur.y) * k;
+    phone.style.setProperty('--rx', cur.x.toFixed(2) + 'deg');
+    phone.style.setProperty('--ry', cur.y.toFixed(2) + 'deg');
+    phone.style.setProperty('--glare', (clamp(cur.y - REST.y, -40, 40) * 1.6).toFixed(1) + '%');
+    stage.style.setProperty('--sw', (0.25 + 0.67 * Math.abs(Math.cos(cur.y * Math.PI / 180))).toFixed(3));
+    const settled = Math.abs(goal.x - cur.x) < 0.02 && Math.abs(goal.y - cur.y) < 0.02;
+    raf = settled ? 0 : requestAnimationFrame(step);
+  };
+
+  window.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse' || drag) return;
+    px = (e.clientX / window.innerWidth - 0.5) * 2;
+    py = (e.clientY / window.innerHeight - 0.5) * 2;
+    aim();
+  }, { passive: true });
+  phone.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { over = true; aim(); } });
+  phone.addEventListener('pointerleave', () => { over = false; aim(); });
+
+  // Dragging turns it freely; a few seconds after letting go it settles back.
+  phone.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    drag = { x: e.clientX, y: e.clientY, ry: cur.y, rx: cur.x, lastX: e.clientX, lastT: e.timeStamp, v: 0 };
+    goal.x = cur.x; goal.y = cur.y;
+    clearTimeout(timer);
+    phone.setPointerCapture(e.pointerId);
+    phone.classList.add('is-dragging');
+    hint.classList.add('is-used');
+  });
+  phone.addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    goal.y = drag.ry + (e.clientX - drag.x) * 0.6;
+    goal.x = clamp(drag.rx - (e.clientY - drag.y) * 0.25, -18, 22);
+    const dt = e.timeStamp - drag.lastT;
+    if (dt > 0) { drag.v = (e.clientX - drag.lastX) / dt; drag.lastX = e.clientX; drag.lastT = e.timeStamp; }
+    aim();
+  });
+  const release = (e) => {
+    if (!drag) return;
+    if (e.timeStamp - drag.lastT < 80) goal.y += clamp(drag.v * 90, -200, 200); // a flick carries on a little
+    drag = null; held = true;
+    phone.classList.remove('is-dragging');
+    aim();
+    timer = setTimeout(() => { held = false; aim(); }, 3500);
+  };
+  phone.addEventListener('pointerup', release);
+  phone.addEventListener('pointercancel', release);
+})();
 
 /* ---------- From the hero straight to the projects ----------
    On a wide screen, the first nudge downwards from the very top glides to "Projetos web",

@@ -106,7 +106,8 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
 .top > .hero { padding: 0 var(--pad); min-width: 0; }
 .top__matrix {
   position: relative; min-height: calc(100svh - var(--gutter) * 2);
-  border-radius: var(--radius); background: var(--stage); color: var(--stage-ink); overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+  padding: clamp(24px, 3vw, 44px);
 }
 
 /* Placeholder until there is a portrait: the TB monogram in dots. */
@@ -141,23 +142,110 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
 .status { display: inline-flex; align-items: center; gap: 10px; margin-top: 28px; font-size: var(--step-body); }
 .status::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
 
-/* ---------- The activity matrix (the live thing) ---------- */
-.matrix { position: absolute; inset: 0; display: flex; flex-direction: column; padding: clamp(24px, 3vw, 44px); }
-.matrix__count { margin-top: auto; }
-.matrix__count .display { font-size: var(--step-display); color: var(--stage-ink); }
-.matrix__count p { margin-top: 12px; font-size: var(--step-3); line-height: 1.3; color: var(--stage-ink); max-width: 22ch; }
-.matrix__grid { margin: clamp(24px, 4vh, 48px) 0 20px; touch-action: pan-y; cursor: crosshair; }
-.matrix__grid svg { width: 100%; height: auto; overflow: visible; }
-.matrix__grid circle { fill: var(--dot-off); transition: fill 160ms; }
-.matrix__grid circle.l1 { fill: #6d6c67; }
-.matrix__grid circle.l2 { fill: #b7b6b0; }
-.matrix__grid circle.l3 { fill: var(--stage-ink); }
-.matrix__grid circle.is-on { fill: var(--accent); }
-.matrix__readout { min-height: 3.2em; font-size: var(--step-body); color: var(--stage-ink); }
-.matrix__readout span { color: var(--stage-muted); }
-.matrix__scrub { margin-top: 14px; }
-.matrix__scrub label { display: block; font-size: 14px; color: var(--stage-muted); margin-bottom: 6px; }
-input[type=range] { width: 100%; height: 32px; background: transparent; accent-color: var(--accent); cursor: pointer; }
+/* ---------- Em números: the figures as widgets on a phone (see the stats code in assets/js/site.js) ---------- */
+/* The body: a flat aluminium rail around a black glass front, standing straight on the page. */
+.phone {
+  position: relative; width: min(100%, 328px); padding: 3px; border-radius: 55px;
+  background: linear-gradient(135deg, #fbfbf9 0%, #cfcec9 18%, #8d8c87 46%, #b9b8b3 62%, #efeeea 84%, #a3a29d 100%);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.55),
+    0 0 0 1px rgb(0 0 0 / 0.14),
+    0 2px 3px rgb(0 0 0 / 0.16),
+    0 18px 28px -14px rgb(0 0 0 / 0.3),
+    0 56px 80px -36px rgb(0 0 0 / 0.5);
+}
+/* Side keys: volume on the left, power on the right. */
+.phone::before, .phone::after {
+  content: ""; position: absolute; width: 3px; background: linear-gradient(180deg, #d9d8d3, #94938e 50%, #c4c3be);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12);
+}
+.phone::before { left: -3px; top: 132px; height: 34px; border-radius: 2px 0 0 2px; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12), 0 46px 0 #b3b2ad, 0 46px 0 1px rgb(0 0 0 / 0.12); }
+.phone::after { right: -3px; top: 168px; height: 58px; border-radius: 0 2px 2px 0; }
+/* In 3D (see "The phone as a 3D object" in assets/js/site.js): the front face above, a stack of slabs behind it for the depth. */
+.phone.is-3d {
+  transform-style: preserve-3d;
+  transform: perspective(1600px) rotateX(var(--rx, 5deg)) rotateY(var(--ry, -24deg));
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.55);
+}
+.phone.is-3d::before, .phone.is-3d::after { content: none; }
+.phone.is-3d { cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.phone.is-3d.is-dragging { cursor: grabbing; animation-play-state: paused; }
+.phone-stage { position: relative; width: min(100%, 328px); }
+.phone__shadow {
+  position: absolute; inset: 8% 6% -5%; border-radius: 60px; pointer-events: none;
+  background: rgb(0 0 0 / 0.3); filter: blur(34px);
+  transform: translate(-14px, 26px) scaleX(var(--sw, 0.92));
+}
+.phone__hint { margin-top: 30px; font-size: var(--step-small); line-height: 1.45; color: var(--muted); text-align: center; transition: opacity 400ms; }
+.phone__hint::before { content: "\2194"; margin-right: 8px; color: var(--accent-ink); }
+.phone__hint.is-used { opacity: 0; }
+.phone__slab { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; }
+/* Flat walls close the straight part of each side, so it stays solid when seen edge-on. */
+.phone__wall {
+  position: absolute; left: 0; top: 55px; bottom: 55px; width: 32px; pointer-events: none;
+  transform-origin: 0 50%; transform: rotateY(90deg);
+  background: linear-gradient(90deg, hsl(60 3% 62%), hsl(60 3% 72%) 22%, hsl(60 3% 50%) 42%, hsl(60 3% 28%));
+}
+.phone__wall--right { left: 100%; }
+/* The back: dark glass, two lenses, and the monogram on a dot display. */
+.phone__back { position: absolute; inset: 0; padding: 3px; border-radius: inherit; background: inherit; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.45); }
+.phone__plate {
+  position: relative; height: 100%; overflow: hidden; border-radius: 52px;
+  background: linear-gradient(155deg, #2a2a29, #171716 50%, #0e0e0d); color: var(--stage-ink);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+}
+.phone__plate::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(118deg, transparent 52%, rgb(255 255 255 / 0.05) 52.2%, rgb(255 255 255 / 0.01) 78%, transparent 78.2%);
+}
+.phone__cams { position: absolute; left: 24px; top: 24px; display: flex; gap: 12px; padding: 11px; border-radius: 999px; background: #0a0a0a; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.09), 0 2px 6px rgb(0 0 0 / 0.5); }
+.phone__lens { width: 50px; height: 50px; border-radius: 50%; background: radial-gradient(circle at 38% 34%, #56617d 0 6%, #1a2030 18%, #050506 46%, #1c1c1b 50%, #0b0b0b 62%, #232322 100%); box-shadow: 0 0 0 1.5px #3a3a38, inset 0 0 0 1px rgb(0 0 0 / 0.8); }
+.phone__flash { position: absolute; left: 180px; top: 52px; width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #fffdf2, #d9d3bd 60%, #a39e8c); box-shadow: 0 0 0 1.5px #2e2e2c, 28px 5px 0 -5px var(--accent); }
+.phone__glyph { position: absolute; left: 50%; top: 50%; width: 208px; translate: -50% -50%; padding: 12px; border-radius: 28px; background: #0a0a0a; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08); }
+.phone__glyph svg { width: 100%; height: auto; }
+.phone__mark { position: absolute; left: 0; right: 0; bottom: 62px; text-align: center; font-family: var(--font-display); font-weight: 900; font-size: 26px; line-height: 1; letter-spacing: -0.02em; }
+.phone__mark i { font-style: normal; color: var(--accent); }
+.phone__fine { position: absolute; left: 0; right: 0; bottom: 36px; text-align: center; font-size: 10px; line-height: 1; letter-spacing: 0.18em; color: #7a7973; }
+/* The keys stand out of the middle of the rail: volume on the left, power on the right. */
+.phone__slab--keys::before, .phone__slab--keys::after { content: ""; position: absolute; width: 5px; border-radius: 2.5px; background: inherit; }
+.phone__slab--keys::before { left: -2.5px; top: 138px; height: 84px; }
+.phone__slab--keys::after { right: -2.5px; top: 184px; height: 64px; }
+@media (prefers-reduced-motion: no-preference) {
+  .phone.is-3d { animation: phone-float 7s ease-in-out infinite; }
+  @keyframes phone-float { 0%, 100% { translate: 0 -5px; } 50% { translate: 0 5px; } }
+}
+.phone__screen {
+  position: relative; overflow: hidden;
+  padding: 12px 10px 8px; border: 7px solid #050505; border-radius: 52px;
+  background: var(--stage); color: var(--stage-ink);
+  box-shadow: 0 0 0 1px #2a2a29;
+}
+/* A faint reflection across the glass. */
+.phone__screen::after {
+  content: ""; position: absolute; inset: 0 -40%; pointer-events: none;
+  background: linear-gradient(118deg, transparent 22%, rgb(255 255 255 / 0.07) 22.2%, rgb(255 255 255 / 0.02) 44%, transparent 44.2%);
+  transform: translateX(var(--glare, 0%));
+}
+.phone__bar { position: relative; display: flex; align-items: center; justify-content: space-between; height: 26px; padding: 0 18px; color: var(--stage-ink); }
+.phone__sig { display: flex; align-items: center; gap: 6px; }
+.phone__sig svg { width: 16px; height: 12px; }
+.phone__cam { position: absolute; left: 50%; top: 50%; width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; border-radius: 50%; background: radial-gradient(circle at 35% 32%, #2b3140 0 16%, #07080b 42%, #000 100%); box-shadow: 0 0 0 2px #171716; }
+.phone__batt { position: relative; width: 24px; height: 12px; border-radius: 4px; border: 1.5px solid rgb(240 240 238 / 0.55); background: linear-gradient(90deg, var(--stage-ink) 72%, transparent 72%) content-box; padding: 1.5px; }
+.phone__batt::after { content: ""; position: absolute; right: -4.5px; top: 50%; width: 2px; height: 5px; margin-top: -2.5px; border-radius: 0 1.5px 1.5px 0; background: rgb(240 240 238 / 0.55); }
+.phone__date { min-height: 20px; margin-top: 30px; font-size: 14px; line-height: 20px; letter-spacing: 0.02em; text-align: center; color: var(--stage-muted); }
+.phone__time { margin: 8px 0 30px; font-family: var(--font-display); font-weight: 900; font-size: 80px; line-height: 0.9; letter-spacing: -0.02em; text-align: center; font-variant-numeric: tabular-nums; }
+.phone__home { display: block; width: 104px; height: 4px; margin: 14px auto 0; border-radius: 999px; background: #4a4a47; }
+.stats { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.stat { display: flex; flex-direction: column; justify-content: space-between; gap: 16px; min-height: 116px; padding: 14px 12px 12px; border-radius: 24px; background: #191918; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.05); }
+.stat dd { order: -1; }
+.stat dt { font-size: 13px; line-height: 1.3; color: var(--stage-muted); }
+.stat svg { display: block; height: 36px; width: auto; max-width: 100%; overflow: visible; }
+.stat circle { fill: var(--dot-off); transition: fill 260ms; }
+.stat circle.on { fill: var(--stage-ink); transition-duration: 40ms; }
+.stat circle.red { fill: var(--accent); transition-duration: 40ms; }
+.stat circle.hot { fill: #46453f; transition-duration: 0ms; }
+.stat circle.on.hot { fill: var(--accent); }
+.stats__note { max-width: 328px; font-size: var(--step-small); color: var(--muted); text-align: center; }
 
 /* ---------- Sections ---------- */
 .section { padding: clamp(72px, 9vw, 128px) var(--pad); }
@@ -294,10 +382,18 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
 .also__item p { margin-top: 6px; font-size: 16px; line-height: 1.5; color: var(--muted); max-width: 44ch; }
 
 /* About: the letter beside a modest portrait. */
-.about { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: clamp(40px, 6vw, 112px); align-items: start; }
-.about__photo { position: sticky; top: 32px; max-width: 380px; justify-self: end; width: 100%; }
-.about__photo .photo-ph { aspect-ratio: 4 / 5; border-radius: var(--radius); }
-.about__photo figcaption { margin-top: 12px; font-size: var(--step-small); color: var(--muted); }
+/* Title on top, letter and photo side by side, skills across the full width below. */
+.about {
+  display: grid; grid-template-columns: minmax(0, 40rem) minmax(0, 26rem); justify-content: start;
+  grid-template-areas: "head head" "letter photo" "facts facts";
+  column-gap: clamp(48px, 6vw, 96px); align-items: start;
+}
+.about__text { display: contents; }
+.about .block__head { grid-area: head; }
+.about .letter { grid-area: letter; }
+.about .facts { grid-area: facts; grid-template-columns: 9.5em minmax(0, 1fr) 9.5em minmax(0, 1fr); column-gap: 24px; }
+.about__photo { grid-area: photo; width: 100%; }
+.about__photo img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--radius); background: var(--stage); }
 .letter p + p { margin-top: 1.1em; }
 .letter mark { background: #f3c7c9; color: inherit; padding: 0 .15em; }
 
@@ -481,7 +577,8 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
 @media (max-width: 1080px) {
   .jobs li { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
   .jobs .what { grid-column: 2; }
-  .about { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+  .about { grid-template-columns: minmax(0, 1fr) minmax(0, 300px); }
+  .about .facts { grid-template-columns: 9.5em minmax(0, 1fr); }
   .p-built__grid { grid-template-columns: minmax(0, 1fr); }
   .p-intro { grid-template-columns: minmax(0, 1fr); }
 }
@@ -499,11 +596,7 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
   .hero__body .display { font-size: 21vw; }
   .scroll-cue { display: none; }
   .top__matrix { min-height: 0; margin: 48px var(--gutter) 0; }
-  .top__matrix .matrix { position: relative; inset: auto; }
-  .top__matrix .matrix__count .display { font-size: 22vw; }
-  .top__matrix .matrix__count { order: 2; margin-top: 8px; }
-  .top__matrix .matrix__grid { margin-top: 0; }
-  .top__matrix .matrix__readout, .top__matrix .matrix__scrub { order: 3; }
+  .top__matrix { padding: 32px 16px; }
   #projetos { padding-top: 72px; }
   .block__head { flex-direction: column; align-items: flex-start; }
   .block__head p { text-align: left; }
@@ -520,13 +613,12 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
   .field__head .display { font-size: min(var(--step-display), calc((100vw - 2 * var(--pad)) / (var(--len, 8) * 0.62))); }
   .jobs li { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .jobs .what { grid-column: auto; }
-  .about { grid-template-columns: minmax(0, 1fr); gap: 32px; }
-  .about__text { display: contents; }
-  .about .block__head { order: -2; margin-bottom: 0; }
-  .about__photo { position: static; order: -1; justify-self: start; max-width: 240px; }
+  .about { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "photo" "letter" "facts"; gap: 32px; }
+  .about .block__head { margin-bottom: 0; }
+  .about__photo { max-width: 240px; }
   .contact { grid-template-columns: minmax(0, 1fr); gap: 56px; }
   .channels li { grid-template-columns: minmax(0, 1fr); gap: 4px; }
-  .facts { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .facts, .about .facts { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .facts dd + dt { margin-top: 14px; }
   .footer__name { font-size: 16vw; white-space: normal; }
   .footer__name span { display: block; }

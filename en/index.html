@@ -46,19 +46,24 @@
     <a class="scroll-cue" href="#projetos">Scroll to see the projects <span class="scroll-cue__arrow" aria-hidden="true">↓</span></a>
   </header>
 
-  <aside class="top__matrix" aria-label="GitHub activity over the last 12 months">
-    <div class="matrix">
-      <div class="matrix__count">
-        <p class="display" data-total>512</p>
-        <p>GitHub contributions over the last 12 months, across personal and course projects.</p>
-      </div>
-      <div class="matrix__grid"></div>
-      <p class="matrix__readout" aria-live="polite"></p>
-      <div class="matrix__scrub">
-        <label for="scrub">Pick a day or hover over the dots</label>
-        <input id="scrub" type="range" min="0" max="365" step="1" value="0">
+  <aside class="top__matrix" aria-label="By the numbers">
+    <div class="phone">
+      <div class="phone__screen">
+        <div class="phone__bar" aria-hidden="true"><span class="phone__sig"><svg viewBox="0 0 16 12" fill="currentColor"><rect y="8" width="3" height="4" rx="1"/><rect x="4.3" y="5.5" width="3" height="6.5" rx="1"/><rect x="8.6" y="3" width="3" height="9" rx="1"/><rect x="13" width="3" height="12" rx="1" opacity=".35"/></svg><svg viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 4.2a9.5 9.5 0 0 1 13 0"/><path d="M4.2 7.1a5.6 5.6 0 0 1 7.6 0"/><circle cx="8" cy="10.2" r="1.1" fill="currentColor" stroke="none"/></svg></span><i class="phone__cam"></i><span class="phone__batt"></span></div>
+        <p class="phone__date" aria-hidden="true" data-date></p>
+        <p class="phone__time" aria-hidden="true" data-clock>09:41</p>
+        <dl class="stats">
+          <div class="stat"><dt>CTeSP entry grade, out of 20</dt><dd data-value="18.7"><span class="sr-only">18.7</span></dd></div>
+          <div class="stat"><dt>internships done</dt><dd data-value="3"><span class="sr-only">3</span></dd></div>
+          <div class="stat"><dt>months on Erasmus+ in Poland</dt><dd data-value="2"><span class="sr-only">2</span></dd></div>
+          <div class="stat"><dt>GitHub contributions</dt><dd data-value="879"><span class="sr-only">879</span></dd></div>
+          <div class="stat"><dt>public repositories</dt><dd data-value="9"><span class="sr-only">9</span></dd></div>
+          <div class="stat"><dt>projects in this portfolio</dt><dd data-value="8"><span class="sr-only">8</span></dd></div>
+        </dl>
+        <i class="phone__home" aria-hidden="true"></i>
       </div>
     </div>
+    <p class="stats__note">GitHub: personal and course accounts combined. Updated November 2026.</p>
   </aside>
 </div>
 
@@ -235,8 +240,7 @@
       </dl>
   </div>
   <figure class="about__photo" data-reveal>
-    <div class="photo-ph" data-glyph="monogram" role="img" aria-label="Placeholder for a photo"></div>
-    <figcaption>Photo coming soon</figcaption>
+    <img src="../assets/img/thomaz.webp" width="800" height="1000" alt="Photo of Thomaz Barrago" loading="lazy" decoding="async">
   </figure>
 </section>
 
@@ -272,7 +276,6 @@
   <div class="footer__legal"><span>© 2026 Thomaz Barrago</span><a href="mailto:thomazbarrago@gmail.com">thomazbarrago@gmail.com</a></div>
 </footer>
 
-<script src="../data/activity.js"></script>
 <script src="../assets/js/site.js"></script>
 </body>
 </html>
