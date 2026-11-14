@@ -237,9 +237,9 @@ function buildStat(el) {
 
   const SLABS = 32, GAP = 1; // 32px deep
   // One titanium tone for the whole rail, by depth (0 at the front, 1 at the back): a flat band between two bright bevels.
-  const shade = (t) => {
+  const shade = (t, dim = 1) => {
     const bevel = Math.max(Math.exp(-((t / 0.07) ** 2)), Math.exp(-(((1 - t) / 0.07) ** 2)));
-    return `hsl(220 4% ${(44 + 4 * Math.sin(t * Math.PI) + 22 * bevel).toFixed(1)}%)`;
+    return `hsl(220 4% ${((44 + 4 * Math.sin(t * Math.PI) + 22 * bevel) * dim).toFixed(1)}%)`;
   };
   const el = (tag, cls) => { const n = document.createElement(tag); n.className = cls; n.setAttribute('aria-hidden', 'true'); return n; };
 
@@ -268,6 +268,7 @@ function buildStat(el) {
     const slab = el('i', 'phone__slab' + (i >= 12 && i <= 22 ? ' phone__slab--keys' : ''));
     slab.style.transform = `translateZ(${-i * GAP}px)`;
     slab.style.background = shade((i - 0.5) / SLABS);
+    slab.style.setProperty('--key', shade((i - 0.5) / SLABS, 0.72));
     phone.prepend(slab);
   }
 
@@ -275,7 +276,10 @@ function buildStat(el) {
   const stage = el('div', 'phone-stage');
   stage.removeAttribute('aria-hidden');
   phone.before(stage);
-  stage.append(el('i', 'phone__shadow'), phone);
+  const shadow = el('i', 'phone__shadow');
+  const glare = el('i', 'phone__glare');
+  phone.querySelector('.phone__screen')?.append(glare);
+  stage.append(shadow, phone);
   phone.classList.add('is-3d');
   if (reduceMotion) return;
 
@@ -301,10 +305,11 @@ function buildStat(el) {
     const k = drag ? 0.3 : 0.09;
     cur.x += (goal.x - cur.x) * k;
     cur.y += (goal.y - cur.y) * k;
-    phone.style.setProperty('--rx', cur.x.toFixed(2) + 'deg');
-    phone.style.setProperty('--ry', cur.y.toFixed(2) + 'deg');
-    phone.style.setProperty('--glare', (clamp(cur.y - REST.y, -40, 40) * 1.6).toFixed(1) + '%');
-    stage.style.setProperty('--sw', (0.25 + 0.67 * Math.abs(Math.cos(cur.y * Math.PI / 180))).toFixed(3));
+    // Written straight onto the three elements that move. As custom properties on the phone they
+    // were inherited by its 700-odd children, and every pointer move restyled all of them.
+    phone.style.transform = `perspective(1600px) rotateX(${cur.x.toFixed(2)}deg) rotateY(${cur.y.toFixed(2)}deg)`;
+    glare.style.transform = `translateX(${(clamp(cur.y - REST.y, -40, 40) * 1.6).toFixed(1)}%)`;
+    shadow.style.transform = `translate(-14px, 26px) scaleX(${(0.25 + 0.67 * Math.abs(Math.cos(cur.y * Math.PI / 180))).toFixed(3)})`;
     const settled = Math.abs(goal.x - cur.x) < 0.02 && Math.abs(goal.y - cur.y) < 0.02;
     raf = settled ? 0 : requestAnimationFrame(step);
   };
@@ -361,13 +366,25 @@ function buildStat(el) {
     gliding = true;
     const y = target.getBoundingClientRect().top + window.scrollY;
     window.scrollTo({ top: y, behavior: reduceMotion ? 'auto' : 'smooth' });
-    setTimeout(() => { gliding = false; }, 900);
+    setTimeout(() => { gliding = false; arm(); }, 900);
   }
-  window.addEventListener('wheel', (e) => {
+  // A wheel listener that may cancel makes every scroll wait for the script, so it is only
+  // attached while the page sits at the top (or is gliding) and taken off for the rest of the page.
+  const onWheel = (e) => {
     if (!wide.matches) return;
     if (gliding) { e.preventDefault(); return; }
     if (e.deltaY > 0 && atTop()) { e.preventDefault(); glide(); }
-  }, { passive: false });
+  };
+  let armed = false;
+  const arm = () => {
+    const want = gliding || atTop();
+    if (want === armed) return;
+    armed = want;
+    if (want) window.addEventListener('wheel', onWheel, { passive: false });
+    else window.removeEventListener('wheel', onWheel);
+  };
+  window.addEventListener('scroll', arm, { passive: true });
+  arm();
   window.addEventListener('keydown', (e) => {
     if (!wide.matches || !atTop() || e.target.closest('input, textarea, select, [contenteditable]')) return;
     if (['ArrowDown', 'PageDown', ' '].includes(e.key) && !e.shiftKey) { e.preventDefault(); glide(); }
@@ -446,6 +463,164 @@ document.querySelectorAll('[data-carousel]').forEach((root) => {
     }, { threshold: 0.4 }).observe(root);
   }
   go(0);
+});
+
+/* ---------- Halftone behind the phone: dots on a tilted grid, sized by slow diagonal waves ----------
+   Drawn by a fragment shader, so a frame costs one draw call however many dots there are.
+   The waves drift on their own and the dots swell a little under the pointer. */
+document.querySelectorAll('.top__matrix').forEach((host) => {
+  const canvas = document.createElement('canvas');
+  canvas.className = 'halftone';
+  canvas.setAttribute('aria-hidden', 'true');
+  host.prepend(canvas);
+  const STEP = 9;                       // grid pitch in CSS px
+  const TILT = -14 * Math.PI / 180;     // grid rotation
+  const ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#121212';
+  let w = 0, h = 0, dpr = 1, ox = 0, oy = 0;
+
+  const size = () => {
+    const r = host.getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = r.width; h = r.height;
+    ox = r.left + window.scrollX; oy = r.top + window.scrollY;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+  };
+
+  const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false, failIfMajorPerformanceCaveat: true });
+  if (!gl) {
+    // No (fast) WebGL: one still frame on a 2D canvas, faded by a CSS mask.
+    canvas.classList.add('halftone--flat');
+    const ctx = canvas.getContext('2d');
+    const cosT = Math.cos(TILT), sinT = Math.sin(TILT);
+    const still = () => {
+      size();
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = ink;
+      ctx.beginPath();
+      const reach = Math.ceil((Math.hypot(w, h) / 2 + STEP) / STEP) * STEP, cx = w / 2, cy = h / 2;
+      for (let v = -reach; v <= reach; v += STEP) {
+        for (let u = -reach; u <= reach; u += STEP) {
+          const x = cx + u * cosT - v * sinT, y = cy + u * sinT + v * cosT;
+          if (x < -STEP || y < -STEP || x > w + STEP || y > h + STEP) continue;
+          const f = 0.62 * Math.sin((x * 0.34 + y * 0.94) / 150 + 0.6) + 0.38 * Math.sin((x * 0.8 - y * 0.6) / 230 + 1.34);
+          const k = Math.max(0, Math.min(1, 0.5 + 0.62 * f)), r = STEP * 0.5 * k * k;
+          if (r < 0.45) continue;
+          ctx.moveTo(x + r, y);
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+        }
+      }
+      ctx.fill();
+    };
+    still();
+    new ResizeObserver(still).observe(host);
+    return;
+  }
+
+  const FRAG = `
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #else
+    precision mediump float;
+    #endif
+    uniform vec2 uSize;    // CSS px
+    uniform float uDpr, uTime, uPull;
+    uniform vec2 uMouse;   // CSS px, from the top left
+    uniform vec3 uInk;
+    const float STEP = ${STEP.toFixed(1)};
+    const vec2 ROT = vec2(${Math.cos(TILT).toFixed(6)}, ${Math.sin(TILT).toFixed(6)});
+    void main() {
+      vec2 p = vec2(gl_FragCoord.x, uSize.y * uDpr - gl_FragCoord.y) / uDpr;
+      vec2 d = p - uSize * 0.5;
+      vec2 g = vec2(d.x * ROT.x + d.y * ROT.y, d.y * ROT.x - d.x * ROT.y);      // into the tilted grid
+      vec2 cell = (floor(g / STEP) + 0.5) * STEP;
+      vec2 q = uSize * 0.5 + vec2(cell.x * ROT.x - cell.y * ROT.y, cell.x * ROT.y + cell.y * ROT.x); // this dot's centre
+      // Two crossing bands, like printed shading.
+      float v = 0.62 * sin((q.x * 0.34 + q.y * 0.94) / 150.0 + uTime)
+              + 0.38 * sin((q.x * 0.8 - q.y * 0.6) / 230.0 - uTime * 0.6 + 1.7);
+      float f = 0.5 + 0.62 * v;
+      vec2 m = q - uMouse;
+      f = clamp(f + uPull * 0.55 * exp(-dot(m, m) / 16000.0), 0.0, 1.0);
+      float r = STEP * 0.5 * f * f;
+      float aa = 0.75 / uDpr;
+      float a = smoothstep(r + aa, r - aa, length(g - cell)) * smoothstep(0.3, 0.7, r);
+      a *= clamp(p.x / (uSize.x * 0.38), 0.0, 1.0);                             // fades out toward the hero text
+      gl_FragColor = vec4(uInk * a, a);
+    }`;
+  const rgb = (() => {
+    const c = document.createElement('canvas').getContext('2d');
+    c.fillStyle = ink; c.fillRect(0, 0, 1, 1);
+    return [...c.getImageData(0, 0, 1, 1).data].slice(0, 3).map((n) => n / 255);
+  })();
+
+  let U = null;
+  const setup = () => {
+    const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; };
+    const prog = gl.createProgram();
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, 'attribute vec2 a; void main() { gl_Position = vec4(a, 0.0, 1.0); }'));
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG));
+    gl.bindAttribLocation(prog, 0, 'a');
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return false;
+    gl.useProgram(prog);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW); // one triangle over the whole canvas
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    U = Object.fromEntries(['uSize', 'uDpr', 'uTime', 'uPull', 'uMouse', 'uInk'].map((n) => [n, gl.getUniformLocation(prog, n)]));
+    gl.uniform3fv(U.uInk, rgb);
+    return true;
+  };
+  if (!setup()) { canvas.remove(); return; }
+
+  const SPEED = 1 / 3200;               // radians of wave phase per millisecond
+  const mouse = { x: -9999, y: -9999, tx: -9999, ty: -9999, pull: 0, want: 0 };
+  let raf = 0, inView = true, now = 0.6 / SPEED;
+
+  const draw = () => {
+    if (!U) return;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.uniform2f(U.uSize, w, h);
+    gl.uniform1f(U.uDpr, dpr);
+    gl.uniform1f(U.uTime, now * SPEED);
+    gl.uniform1f(U.uPull, mouse.pull);
+    gl.uniform2f(U.uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  };
+  const loop = (t) => {
+    raf = 0;
+    if (!inView) return;
+    now = t;
+    mouse.x += (mouse.tx - mouse.x) * 0.12;
+    mouse.y += (mouse.ty - mouse.y) * 0.12;
+    mouse.pull += (mouse.want - mouse.pull) * 0.06;
+    draw();
+    raf = requestAnimationFrame(loop);
+  };
+  const start = () => { if (!raf && !reduceMotion) raf = requestAnimationFrame(loop); };
+
+  size(); draw();
+  new ResizeObserver(() => { size(); draw(); }).observe(host);
+  canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); U = null; });
+  canvas.addEventListener('webglcontextrestored', () => { if (setup()) draw(); });
+  if (reduceMotion) return;
+
+  window.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse' || !inView) return;
+    mouse.tx = e.pageX - ox; mouse.ty = e.pageY - oy;
+    if (!mouse.want) { mouse.x = mouse.tx; mouse.y = mouse.ty; }
+    mouse.want = 1;
+  }, { passive: true });
+  document.documentElement.addEventListener('pointerleave', () => { mouse.want = 0; });
+  if ('IntersectionObserver' in window) {
+    // Off screen, the loop stops and the phone stops floating.
+    new IntersectionObserver(([e]) => {
+      inView = e.isIntersecting;
+      host.classList.toggle('is-away', !inView);
+      if (inView) start();
+    }).observe(host);
+  }
+  start();
 });
 
 /* ---------- Entrances ---------- */

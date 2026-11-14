@@ -34,12 +34,12 @@ const projectsEn = projectsPt.map((p) => {
 
 const LANGS = {
   pt: {
-    projects: projectsPt, dir: 'projetos', up: '../', html: 'pt-PT',
+    projects: projectsPt, dir: 'projetos', up: '../', html: 'pt-PT', locale: 'pt_PT',
     other: (slug) => `../en/projects/${slug}.html`, otherHreflang: 'en',
     s: { skip: 'Saltar para o conteúdo', home: 'Thomaz Barrago, início', back: 'Todos os projetos', newTab: ' (abre noutro separador)', talk: 'Falar sobre este projeto', more: 'Mais ecrãs', tech: 'Detalhes técnicos', next: 'Projeto seguinte', view: 'Ver projeto', toTop: 'Voltar ao topo', nav: ['Projetos', 'Estágios', 'Sobre', 'Contacto'], langLabel: 'Idioma' },
   },
   en: {
-    projects: projectsEn, dir: 'en/projects', up: '../../', html: 'en',
+    projects: projectsEn, dir: 'en/projects', up: '../../', html: 'en', locale: 'en_GB',
     other: (slug) => `../../projetos/${slug}.html`, otherHreflang: 'pt',
     s: { skip: 'Skip to content', home: 'Thomaz Barrago, home', back: 'All projects', newTab: ' (opens in a new tab)', talk: 'Talk about this project', more: 'More screens', tech: 'Technical details', next: 'Next project', view: 'View project', toTop: 'Back to top', nav: ['Projects', 'Internships', 'About', 'Contact'], langLabel: 'Language' },
   },
@@ -117,6 +117,7 @@ projects.forEach((p) => {
     : `<a class="btn" href="../index.html#contacto">${s.talk} <span class="arrow" aria-hidden="true">→</span></a>`;
 
   const nextPoster = next.video?.poster ?? next.image?.src;
+  const cover = p.video?.poster ?? p.image?.src; // what a shared link shows
 
   const html = `<!doctype html>
 <html lang="${L.html}">
@@ -126,6 +127,14 @@ projects.forEach((p) => {
   <title>${esc(p.name)} · Thomaz Barrago</title>
   <meta name="description" content="${esc(p.lead)}">
   <meta name="theme-color" content="#ebebe8">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Thomaz Barrago">
+  <meta property="og:title" content="${esc(p.name)} · Thomaz Barrago">
+  <meta property="og:description" content="${esc(p.lead)}">
+  <meta property="og:locale" content="${L.locale}">
+  <meta property="og:image" content="${up}assets/img/${cover}">
+  <meta property="og:image:alt" content="${esc((p.video ?? p.image).alt)}">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="alternate" hreflang="${L.otherHreflang}" href="${L.other(p.slug)}">
   <link rel="icon" href="${up}assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">

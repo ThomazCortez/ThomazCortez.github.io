@@ -172,7 +172,7 @@ for (let i = 1; i < clips.length; i++) {
 }
 const map = clips.length > 1 ? ['-filter_complex', filter.replace(/;$/, ''), '-map', last] : [];
 execFileSync(ffmpeg, ['-y', '-loglevel', 'error', ...inputs, ...map,
-  '-c:v', 'libx264', '-preset', 'slow', '-crf', String(tour.crf || 25), '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-an', mp4]);
+  '-c:v', 'libx264', '-preset', 'veryslow', '-crf', String(tour.crf || 29), '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-an', mp4]);
 execFileSync(ffmpeg, ['-y', '-loglevel', 'error', '-i', clips[0].file, '-frames:v', '1', '-q:v', '3', poster]);
 rmSync(work, { recursive: true, force: true });
 const seconds = clips.reduce((a, c) => a + c.duration, 0) - FADE * (clips.length - 1);

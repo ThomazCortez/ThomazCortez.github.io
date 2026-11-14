@@ -1,0 +1,53 @@
+<!doctype html>
+<!-- The cover a shared link shows (1200×630). Rendered to assets/img/og-pt.jpg and og-en.jpg by tools/build-og.mjs. -->
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:ROND,wght@100,900&family=Host+Grotesk:wght@400;500&display=swap">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body { position: relative; background: #ebebe8; color: #121212; font-family: "Host Grotesk", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; -webkit-mask-image: linear-gradient(90deg, transparent 46%, #000 88%); mask-image: linear-gradient(90deg, transparent 46%, #000 88%); }
+  main { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 56px 72px 60px; }
+  .wordmark { font-family: "Doto", sans-serif; font-weight: 900; font-size: 34px; line-height: 1; letter-spacing: -0.02em; }
+  .wordmark i, .dot { font-style: normal; color: #d71921; }
+  h1 { margin-top: auto; font-family: "Doto", sans-serif; font-weight: 900; font-size: 156px; line-height: .9; letter-spacing: -0.02em; }
+  .lead { margin-top: 34px; font-size: 34px; line-height: 1.3; letter-spacing: -0.01em; }
+  .status { display: flex; align-items: center; gap: 14px; margin-top: 18px; font-size: 24px; color: #55544e; }
+  .status::before { content: ""; width: 13px; height: 13px; border-radius: 50%; background: #d71921; }
+</style>
+</head>
+<body>
+<canvas width="1200" height="630"></canvas>
+<main>
+  <p class="wordmark">thomaz<i>.</i></p>
+  <h1>Thomaz<br>Barrago</h1>
+  <p class="lead" data-pt="Programador web júnior" data-en="Junior web developer"></p>
+  <p class="status" data-pt="Portefólio · projetos, estágios e contacto" data-en="Portfolio · projects, internships and contact"></p>
+</main>
+<script>
+  const lang = new URLSearchParams(location.search).get('lang') === 'en' ? 'en' : 'pt';
+  document.documentElement.lang = lang === 'en' ? 'en' : 'pt-PT';
+  document.querySelectorAll('[data-pt]').forEach((el) => { el.textContent = el.dataset[lang]; });
+
+  // The same halftone as behind the phone on the site, as one still frame.
+  const ctx = document.querySelector('canvas').getContext('2d');
+  const STEP = 11, TILT = -14 * Math.PI / 180, cosT = Math.cos(TILT), sinT = Math.sin(TILT), w = 1200, h = 630;
+  ctx.fillStyle = '#121212';
+  ctx.beginPath();
+  for (let v = -800; v <= 800; v += STEP) {
+    for (let u = -800; u <= 800; u += STEP) {
+      const x = w / 2 + u * cosT - v * sinT, y = h / 2 + u * sinT + v * cosT;
+      if (x < -STEP || y < -STEP || x > w + STEP || y > h + STEP) continue;
+      const f = 0.62 * Math.sin((x * 0.34 + y * 0.94) / 150 + 2.2) + 0.38 * Math.sin((x * 0.8 - y * 0.6) / 230 + 1.1);
+      const k = Math.max(0, Math.min(1, 0.5 + 0.62 * f)), r = STEP * 0.5 * k * k;
+      if (r < 0.5) continue;
+      ctx.moveTo(x + r, y);
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+    }
+  }
+  ctx.fill();
+</script>
+</body>
+</html>

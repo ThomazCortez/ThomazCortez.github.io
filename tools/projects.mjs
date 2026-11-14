@@ -124,8 +124,8 @@ export const projects = [
     name: 'SecureChat',
     lead: 'Um chat de grupo em que as mensagens viajam cifradas e assinadas.',
     facts: { Ano: '2026, 1.º ano do CTeSP', Papel: 'Equipa de 2, com Paulo', Estado: 'Concluído', Tecnologias: 'C#, Windows Forms, TCP, SQL Server' },
-    image: { src: 'securechat-chat.png', w: 1258, h: 674, alt: 'Janela de chat do SecureChat com mensagens de três utilizadores e a lista de comandos', caption: 'Chat com três pessoas ligadas, uma mensagem privada e a lista de comandos.' },
-    side: { src: 'securechat-login.png', w: 630, h: 478, alt: 'Janela de início de sessão do SecureChat', caption: 'Início de sessão.' },
+    image: { src: 'securechat-chat.webp', w: 1258, h: 674, alt: 'Janela de chat do SecureChat com mensagens de três utilizadores e a lista de comandos', caption: 'Chat com três pessoas ligadas, uma mensagem privada e a lista de comandos.' },
+    side: { src: 'securechat-login.webp', w: 630, h: 478, alt: 'Janela de início de sessão do SecureChat', caption: 'Início de sessão.' },
     gallery: [
       { src: 'securechat-servidor.webp', w: 2000, h: 1006, alt: 'Consola do servidor a mostrar a troca de chaves RSA de 2048 bits com um cliente', caption: 'O servidor regista a troca de chaves RSA de 2048 bits antes de abrir o canal seguro.' },
     ],
@@ -150,9 +150,9 @@ export const projects = [
     name: 'iShopping',
     lead: 'Planear as compras do mês dentro de um orçamento, com recibo no fim.',
     facts: { Ano: '2026, 1.º ano do CTeSP', Papel: 'Equipa de 2, com Paulo', Estado: 'Concluído', Tecnologias: 'C#, Entity Framework, SQL Server' },
-    image: { src: 'ishopping-inicio.png', w: 1004, h: 539, alt: 'Protótipo do ecrã inicial do iShopping com as compras em aberto', caption: 'Protótipo do ecrã inicial, com as compras em aberto.' },
+    image: { src: 'ishopping-inicio.webp', w: 1004, h: 539, alt: 'Protótipo do ecrã inicial do iShopping com as compras em aberto', caption: 'Protótipo do ecrã inicial, com as compras em aberto.' },
     gallery: [
-      { src: 'ishopping-artigos.png', w: 1004, h: 544, alt: 'Protótipo do ecrã de artigos do iShopping', caption: 'Protótipo da gestão de artigos.' },
+      { src: 'ishopping-artigos.webp', w: 1004, h: 544, alt: 'Protótipo do ecrã de artigos do iShopping', caption: 'Protótipo da gestão de artigos.' },
     ],
     links: [{ label: 'Ver o código', href: 'https://github.com/ThomazCortezESTG/PSI_DA_PL2_Thomaz_Paulo' }],
     body: [

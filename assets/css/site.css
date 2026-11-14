@@ -27,6 +27,10 @@
   --pad: clamp(24px, 4.2vw, 72px);
   --section-gap: clamp(120px, 14vw, 200px);
 
+  /* Rules between rows are a line of dots, like everything else here: one for the paper, one for the ink. */
+  --rule: radial-gradient(circle, rgb(18 18 18 / .34) 1px, transparent 1.4px) 0 0 / 8px 2px repeat-x;
+  --rule-stage: radial-gradient(circle, #55544e 1px, transparent 1.4px) 0 0 / 8px 2px repeat-x;
+
   --ease-out: cubic-bezier(.22, .61, .36, 1);
   --dur: 600ms;
 }
@@ -140,13 +144,19 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
 .hero__body .lead { margin-top: 36px; }
 .hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; margin-top: 36px; }
 .status { display: inline-flex; align-items: center; gap: 10px; margin-top: 28px; font-size: var(--step-body); }
-.status::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.status::before { content: ""; flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+/* The dot breathes slowly, like a notification light. */
+@media (prefers-reduced-motion: no-preference) {
+  .status::before { animation: breathe 2.8s ease-in-out infinite; }
+  @keyframes breathe { 0%, 50%, 100% { opacity: 1; } 75% { opacity: .22; } }
+}
 
 /* ---------- Em números: the figures as widgets on a phone (see the stats code in assets/js/site.js) ---------- */
 /* The body: a flat aluminium rail around a black glass front, standing straight on the page. */
 .phone {
+  --phone-metal: linear-gradient(135deg, #fbfbf9 0%, #cfcec9 18%, #8d8c87 46%, #b9b8b3 62%, #efeeea 84%, #a3a29d 100%);
   position: relative; width: min(100%, 328px); padding: 3px; border-radius: 55px;
-  background: linear-gradient(135deg, #fbfbf9 0%, #cfcec9 18%, #8d8c87 46%, #b9b8b3 62%, #efeeea 84%, #a3a29d 100%);
+  background: var(--phone-metal);
   box-shadow:
     inset 0 0 0 1px rgb(255 255 255 / 0.55),
     0 0 0 1px rgb(0 0 0 / 0.14),
@@ -164,22 +174,26 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
 /* In 3D (see "The phone as a 3D object" in assets/js/site.js): the front face above, a stack of slabs behind it for the depth. */
 .phone.is-3d {
   transform-style: preserve-3d;
-  transform: perspective(1600px) rotateX(var(--rx, 5deg)) rotateY(var(--ry, -24deg));
+  transform: perspective(1600px) rotateX(5deg) rotateY(-24deg); /* the resting pose; the script takes over from here */
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.55);
 }
 .phone.is-3d::before, .phone.is-3d::after { content: none; }
 .phone.is-3d { cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
-.phone.is-3d.is-dragging { cursor: grabbing; animation-play-state: paused; }
+.phone.is-3d.is-dragging, .is-away .phone.is-3d { animation-play-state: paused; }
+.phone.is-3d.is-dragging { cursor: grabbing; }
 .phone-stage { position: relative; width: min(100%, 328px); }
 .phone__shadow {
   position: absolute; inset: 8% 6% -5%; border-radius: 60px; pointer-events: none;
   background: rgb(0 0 0 / 0.3); filter: blur(34px);
-  transform: translate(-14px, 26px) scaleX(var(--sw, 0.92));
+  transform: translate(-14px, 26px) scaleX(0.92); /* turned with the phone by the script */
 }
-.phone__hint { margin-top: 30px; font-size: var(--step-small); line-height: 1.45; color: var(--muted); text-align: center; transition: opacity 400ms; }
+/* The hint and the note under the phone sit on the halftone, so each gets a paper label to stay readable. */
+.phone__hint, .stats__note { background: var(--bg); box-shadow: 0 0 0 1px rgb(18 18 18 / 0.08); }
+.phone__hint { width: fit-content; margin: 30px auto 0; padding: 7px 14px; border-radius: 999px; font-size: var(--step-small); line-height: 1.45; color: var(--muted); text-align: center; transition: opacity 400ms; }
 .phone__hint::before { content: "\2194"; margin-right: 8px; color: var(--accent-ink); }
 .phone__hint.is-used { opacity: 0; }
-.phone__slab { position: absolute; inset: 0; border-radius: inherit; pointer-events: none; }
+/* The radius and the metal are spelled out, not inherited: a child that says "inherit" is restyled whenever the phone's style changes, which is every frame it turns. */
+.phone__slab { position: absolute; inset: 0; border-radius: 55px; pointer-events: none; }
 /* Flat walls close the straight part of each side, so it stays solid when seen edge-on. */
 .phone__wall {
   position: absolute; left: 0; top: 55px; bottom: 55px; width: 32px; pointer-events: none;
@@ -187,7 +201,7 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
 }
 .phone__wall--right { left: 100%; }
 /* The back: dark glass, two lenses, and the monogram on a dot display. */
-.phone__back { position: absolute; inset: 0; padding: 3px; border-radius: inherit; background: inherit; transform-style: preserve-3d; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.45); }
+.phone__back { position: absolute; inset: 0; padding: 3px; border-radius: 55px; background: var(--phone-metal); transform-style: preserve-3d; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.45); }
 .phone__plate {
   position: relative; height: 100%; overflow: hidden; border-radius: 52px;
   background: linear-gradient(155deg, #2a2a29, #171716 50%, #0e0e0d); color: var(--stage-ink);
@@ -212,7 +226,7 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
 .phone__mark i { font-style: normal; color: var(--accent); }
 .phone__fine { position: absolute; left: 0; right: 0; bottom: 36px; text-align: center; font-size: 10px; line-height: 1; letter-spacing: 0.18em; color: #7a7973; }
 /* The keys stand out of the middle of the rail: volume on the left, power on the right. */
-.phone__slab--keys::before, .phone__slab--keys::after { content: ""; position: absolute; width: 6px; border-radius: 3px; background: inherit; filter: brightness(0.72); }
+.phone__slab--keys::before, .phone__slab--keys::after { content: ""; position: absolute; width: 6px; border-radius: 3px; background: var(--key); }
 .phone__slab--keys::before { left: -3px; top: 138px; height: 84px; }
 .phone__slab--keys::after { right: -3px; top: 184px; height: 64px; }
 /* Each key gets its own outer face, a little brighter than the rail it stands on. */
@@ -234,10 +248,9 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
   box-shadow: 0 0 0 1px #2a2a29;
 }
 /* A faint reflection across the glass. */
-.phone__screen::after {
+.phone__glare, .phone:not(.is-3d) .phone__screen::after {
   content: ""; position: absolute; inset: 0 -40%; pointer-events: none;
   background: linear-gradient(118deg, transparent 22%, rgb(255 255 255 / 0.07) 22.2%, rgb(255 255 255 / 0.02) 44%, transparent 44.2%);
-  transform: translateX(var(--glare, 0%));
 }
 .phone__bar { position: relative; display: flex; align-items: center; justify-content: space-between; height: 26px; padding: 0 18px; color: var(--stage-ink); }
 .phone__sig { display: flex; align-items: center; gap: 6px; }
@@ -258,7 +271,15 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
 .stat circle.red { fill: var(--accent); transition-duration: 40ms; }
 .stat circle.hot { fill: #46453f; transition-duration: 0ms; }
 .stat circle.on.hot { fill: var(--accent); }
-.stats__note { max-width: 328px; font-size: var(--step-small); color: var(--muted); text-align: center; }
+/* Halftone field behind the phone (drawn in assets/js/site.js). The shader fades it out toward the hero text itself;
+   only the still 2D fallback needs the mask. */
+.halftone { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; opacity: .9; }
+.halftone--flat {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 38%);
+          mask-image: linear-gradient(90deg, transparent 0%, #000 38%);
+}
+.top__matrix > .phone, .top__matrix > .stats__note { position: relative; z-index: 1; }
+.stats__note { max-width: 328px; padding: 9px 16px; border-radius: 16px; font-size: var(--step-small); line-height: 1.45; color: var(--muted); text-align: center; text-wrap: balance; }
 
 /* ---------- Sections ---------- */
 .section { padding: clamp(72px, 9vw, 128px) var(--pad); }
@@ -386,12 +407,14 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
 
 /* Two smaller course apps, listed quietly under the carousel. */
 .also {
-  margin-top: clamp(40px, 5vw, 64px); padding-top: 28px; border-top: 1px solid rgba(18, 18, 18, .12);
+  margin-top: clamp(40px, 5vw, 64px); padding-top: 28px; background: var(--rule);
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1.4fr); gap: 20px clamp(24px, 4vw, 64px);
 }
 .also__label { font-size: var(--step-body); font-weight: 500; }
 .also__label span { display: block; margin-top: 4px; font-size: var(--step-small); font-weight: 400; color: var(--muted); }
 .also__name { font-size: var(--step-body); font-weight: 500; }
+.also__name a { display: inline-flex; gap: 8px; text-decoration: none; transition: color 160ms; }
+.also__name a:hover { color: var(--accent-ink); }
 .also__item p { margin-top: 6px; font-size: 16px; line-height: 1.5; color: var(--muted); max-width: 44ch; }
 
 /* About: the letter beside a modest portrait. */
@@ -404,13 +427,16 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
 .about__text { display: contents; }
 .about .block__head { grid-area: head; }
 .about .letter { grid-area: letter; }
-.about .facts { grid-area: facts; grid-template-columns: 9.5em minmax(0, 1fr) 9.5em minmax(0, 1fr); column-gap: 24px; }
+/* Skills under the letter, education under the photo. */
+.about .facts { grid-area: facts; grid-template-columns: minmax(0, 40rem) minmax(0, 26rem); column-gap: clamp(48px, 6vw, 96px); }
 .about__photo { grid-area: photo; width: 100%; }
 .about__photo img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; border-radius: var(--radius); background: var(--stage); }
 .letter p + p { margin-top: 1.1em; }
 .letter mark { background: #f3c7c9; color: inherit; padding: 0 .15em; }
 
-.facts { display: grid; grid-template-columns: 9.5em 1fr; gap: 14px 24px; margin-top: 56px; }
+.facts { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; align-items: start; margin-top: 56px; }
+.facts__title { font-size: var(--step-body); font-weight: 500; margin-bottom: 14px; }
+.facts dl > div { display: grid; grid-template-columns: 9.5em minmax(0, 1fr); gap: 2px 24px; padding: 13px 0 12px; background: var(--rule); }
 .facts dt { color: var(--muted); font-size: var(--step-small); padding-top: 4px; }
 .facts dd { font-size: var(--step-body); }
 
@@ -427,7 +453,7 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
 .field__head p { font-size: var(--step-3); line-height: 1.35; max-width: 30ch; }
 .jobs li {
   display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 4fr) minmax(0, 5fr);
-  gap: 24px; padding: 36px 0;
+  gap: 24px; padding: 36px 0; background: var(--rule-stage);
 }
 .jobs .when { font-family: var(--font-display); font-weight: 900; font-size: var(--step-3); line-height: 1; }
 .jobs .when__sub { margin-top: 8px; font-size: var(--step-small); line-height: 1.4; color: var(--stage-muted); }
@@ -463,6 +489,7 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
 .copy__note { margin-top: 14px; min-height: 1.45em; }
 .channels { align-self: end; }
 .channels li { display: grid; grid-template-columns: 9em 1fr; gap: 16px; padding: 14px 0; }
+.channels li + li { background: var(--rule); }
 .channels dt, .channels .label { color: var(--muted); font-size: var(--step-small); padding-top: 3px; }
 .channels a { text-decoration: none; font-size: var(--step-body); word-break: break-word; }
 .channels a:hover { color: var(--accent-ink); }
@@ -489,7 +516,7 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
 .footer__up:hover .arrow { transform: translateY(-3px); }
 .footer__legal a { color: inherit; text-decoration: none; }
 .footer__legal a:hover { color: var(--stage-ink); }
-.footer__legal { margin-top: clamp(28px, 3vw, 44px); padding-top: 16px; border-top: 1px solid #262626; font-size: 14px; color: var(--stage-muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 24px; }
+.footer__legal { margin-top: clamp(28px, 3vw, 44px); padding-top: 16px; background: var(--rule-stage); font-size: 14px; color: var(--stage-muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 24px; }
 
 /* ---------- Project pages: the same opening as the index, with the project playing in the ink panel ---------- */
 .nav__back { display: inline-flex; gap: 10px; }
@@ -591,7 +618,7 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
   .jobs li { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
   .jobs .what { grid-column: 2; }
   .about { grid-template-columns: minmax(0, 1fr) minmax(0, 300px); }
-  .about .facts { grid-template-columns: 9.5em minmax(0, 1fr); }
+  .about .facts { grid-template-columns: minmax(0, 1fr); }
   .p-built__grid { grid-template-columns: minmax(0, 1fr); }
   .p-intro { grid-template-columns: minmax(0, 1fr); }
 }
@@ -631,8 +658,8 @@ a:hover .more, a:focus-visible .more { color: var(--accent-ink); }
   .about__photo { max-width: 240px; }
   .contact { grid-template-columns: minmax(0, 1fr); gap: 56px; }
   .channels li { grid-template-columns: minmax(0, 1fr); gap: 4px; }
-  .facts, .about .facts { grid-template-columns: minmax(0, 1fr); gap: 2px; }
-  .facts dd + dt { margin-top: 14px; }
+  .facts dl > div { grid-template-columns: minmax(0, 1fr); }
+  .facts dt { padding-top: 0; }
   .footer__name { font-size: 16vw; white-space: normal; }
   .footer__name span { display: block; }
   .p-top .hero__body .p-title { font-size: min(18vw, calc((100vw - 40px) / (var(--len) * 0.6))); }
