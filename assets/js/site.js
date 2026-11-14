@@ -235,24 +235,39 @@ function buildStat(el) {
   const phone = document.querySelector('.phone');
   if (!phone || !CSS.supports('transform-style', 'preserve-3d')) return;
 
-  const SLABS = 16, GAP = 2; // 32px deep
+  const SLABS = 32, GAP = 1; // 32px deep
+  // One titanium tone for the whole rail, by depth (0 at the front, 1 at the back): a flat band between two bright bevels.
+  const shade = (t) => {
+    const bevel = Math.max(Math.exp(-((t / 0.07) ** 2)), Math.exp(-(((1 - t) / 0.07) ** 2)));
+    return `hsl(220 4% ${(44 + 4 * Math.sin(t * Math.PI) + 22 * bevel).toFixed(1)}%)`;
+  };
   const el = (tag, cls) => { const n = document.createElement(tag); n.className = cls; n.setAttribute('aria-hidden', 'true'); return n; };
 
   const back = el('div', 'phone__back');
   back.innerHTML = '<div class="phone__plate">'
-    + '<div class="phone__cams"><i class="phone__lens"></i><i class="phone__lens"></i></div><i class="phone__flash"></i>'
+    + '<i class="phone__flash"></i>'
     + '<div class="phone__glyph"></div>'
     + '<p class="phone__mark">thomaz<i>.</i></p><p class="phone__fine">HTML · CSS · JS</p></div>';
   back.querySelector('.phone__glyph').append(drawGlyph('monogram', { pad: 2 }));
   back.style.transform = `translateZ(${-(SLABS * GAP + 1)}px) rotateY(180deg)`;
-  phone.prepend(back, el('i', 'phone__wall'), el('i', 'phone__wall phone__wall--right'));
+  // The camera island (5px high) and the two lens barrels on top of it (5px more), one layer per pixel.
+  const cam = el('div', 'phone__island');
+  const layer = (cls, z) => { const n = el('i', cls); n.style.transform = `translateZ(${z}px)`; cam.append(n); };
+  for (let z = 1; z <= 5; z++) layer('phone__bump' + (z === 5 ? ' phone__bump--top' : ''), z);
+  ['a', 'b'].forEach((side) => {
+    for (let z = 6; z <= 10; z++) layer(`phone__lens phone__lens--${side}` + (z === 10 ? ' phone__lens--glass' : ''), z);
+  });
+  back.append(cam);
+
+  const walls = [el('i', 'phone__wall'), el('i', 'phone__wall phone__wall--right')];
+  const rail = `linear-gradient(90deg, ${Array.from({ length: 17 }, (_, k) => shade(k / 16)).join(', ')})`;
+  walls.forEach((w) => { w.style.background = rail; });
+  phone.prepend(back, ...walls, el('i', 'phone__key'), el('i', 'phone__key phone__key--power'));
 
   for (let i = SLABS; i >= 1; i--) {
-    const t = (i - 1) / (SLABS - 1);            // 0 at the front, 1 at the back
-    const l = 60 - 30 * t + 16 * Math.exp(-(((t - 0.22) / 0.1) ** 2)); // a highlight runs along the rail
-    const slab = el('i', 'phone__slab' + (i >= 6 && i <= 11 ? ' phone__slab--keys' : ''));
+    const slab = el('i', 'phone__slab' + (i >= 12 && i <= 22 ? ' phone__slab--keys' : ''));
     slab.style.transform = `translateZ(${-i * GAP}px)`;
-    slab.style.background = `linear-gradient(180deg, hsl(60 3% ${l + 9}%), hsl(60 3% ${l}%) 30%, hsl(60 3% ${l - 12}%))`;
+    slab.style.background = shade((i - 0.5) / SLABS);
     phone.prepend(slab);
   }
 

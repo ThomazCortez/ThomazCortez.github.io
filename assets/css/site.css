@@ -183,12 +183,11 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
 /* Flat walls close the straight part of each side, so it stays solid when seen edge-on. */
 .phone__wall {
   position: absolute; left: 0; top: 55px; bottom: 55px; width: 32px; pointer-events: none;
-  transform-origin: 0 50%; transform: rotateY(90deg);
-  background: linear-gradient(90deg, hsl(60 3% 62%), hsl(60 3% 72%) 22%, hsl(60 3% 50%) 42%, hsl(60 3% 28%));
+  transform-origin: 0 50%; transform: rotateY(90deg); /* its shading is set in the script, to match the slabs */
 }
 .phone__wall--right { left: 100%; }
 /* The back: dark glass, two lenses, and the monogram on a dot display. */
-.phone__back { position: absolute; inset: 0; padding: 3px; border-radius: inherit; background: inherit; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.45); }
+.phone__back { position: absolute; inset: 0; padding: 3px; border-radius: inherit; background: inherit; transform-style: preserve-3d; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.45); }
 .phone__plate {
   position: relative; height: 100%; overflow: hidden; border-radius: 52px;
   background: linear-gradient(155deg, #2a2a29, #171716 50%, #0e0e0d); color: var(--stage-ink);
@@ -198,8 +197,14 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(118deg, transparent 52%, rgb(255 255 255 / 0.05) 52.2%, rgb(255 255 255 / 0.01) 78%, transparent 78.2%);
 }
-.phone__cams { position: absolute; left: 24px; top: 24px; display: flex; gap: 12px; padding: 11px; border-radius: 999px; background: #0a0a0a; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.09), 0 2px 6px rgb(0 0 0 / 0.5); }
-.phone__lens { width: 50px; height: 50px; border-radius: 50%; background: radial-gradient(circle at 38% 34%, #56617d 0 6%, #1a2030 18%, #050506 46%, #1c1c1b 50%, #0b0b0b 62%, #232322 100%); box-shadow: 0 0 0 1.5px #3a3a38, inset 0 0 0 1px rgb(0 0 0 / 0.8); }
+/* The camera stands out of the back: an island built from stacked layers, with the two lens barrels rising from it. */
+.phone__island { position: absolute; left: 27px; top: 27px; width: 134px; height: 72px; transform-style: preserve-3d; }
+.phone__bump { position: absolute; inset: 0; border-radius: 999px; background: #45464a; }
+.phone__bump:first-child { box-shadow: 0 0 12px 3px rgb(0 0 0 / 0.6); }
+.phone__bump--top { background: linear-gradient(160deg, #222221, #0a0a0a); box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16); }
+.phone__lens { position: absolute; left: 11px; top: 11px; width: 50px; height: 50px; border-radius: 50%; background: #5d5e63; }
+.phone__lens--b { left: 73px; }
+.phone__lens--glass { background: radial-gradient(circle at 38% 34%, #6f7b9c 0 5%, #1a2030 17%, #050506 44%, #1c1c1b 50%, #0b0b0b 64%, #1e1e1d 100%); box-shadow: inset 0 0 0 2px #2b2b2a, inset 0 0 0 3px rgb(255 255 255 / 0.14); }
 .phone__flash { position: absolute; left: 180px; top: 52px; width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #fffdf2, #d9d3bd 60%, #a39e8c); box-shadow: 0 0 0 1.5px #2e2e2c, 28px 5px 0 -5px var(--accent); }
 .phone__glyph { position: absolute; left: 50%; top: 50%; width: 208px; translate: -50% -50%; padding: 12px; border-radius: 28px; background: #0a0a0a; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08); }
 .phone__glyph svg { width: 100%; height: auto; }
@@ -207,9 +212,17 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
 .phone__mark i { font-style: normal; color: var(--accent); }
 .phone__fine { position: absolute; left: 0; right: 0; bottom: 36px; text-align: center; font-size: 10px; line-height: 1; letter-spacing: 0.18em; color: #7a7973; }
 /* The keys stand out of the middle of the rail: volume on the left, power on the right. */
-.phone__slab--keys::before, .phone__slab--keys::after { content: ""; position: absolute; width: 5px; border-radius: 2.5px; background: inherit; }
-.phone__slab--keys::before { left: -2.5px; top: 138px; height: 84px; }
-.phone__slab--keys::after { right: -2.5px; top: 184px; height: 64px; }
+.phone__slab--keys::before, .phone__slab--keys::after { content: ""; position: absolute; width: 6px; border-radius: 3px; background: inherit; filter: brightness(0.72); }
+.phone__slab--keys::before { left: -3px; top: 138px; height: 84px; }
+.phone__slab--keys::after { right: -3px; top: 184px; height: 64px; }
+/* Each key gets its own outer face, a little brighter than the rail it stands on. */
+.phone__key {
+  position: absolute; left: -3px; top: 138px; width: 10px; height: 84px; border-radius: 5px; pointer-events: none;
+  transform-origin: 0 50%; transform: translateZ(-12px) rotateY(90deg);
+  background: linear-gradient(90deg, hsl(220 4% 74%), hsl(220 4% 60%) 45%, hsl(220 4% 48%));
+  box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.3);
+}
+.phone__key--power { left: calc(100% + 3px); top: 184px; height: 64px; }
 @media (prefers-reduced-motion: no-preference) {
   .phone.is-3d { animation: phone-float 7s ease-in-out infinite; }
   @keyframes phone-float { 0%, 100% { translate: 0 -5px; } 50% { translate: 0 5px; } }
