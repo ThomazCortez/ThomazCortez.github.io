@@ -13,6 +13,10 @@ import { en } from './projects.en.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
+// Where the site is published. Shared links (og:image, og:url) and canonical/hreflang must be absolute.
+const SITE = 'https://thomazcortez.github.io/';
+const pagePath = { pt: (slug) => `projetos/${slug}.html`, en: (slug) => `en/projects/${slug}.html` };
+
 // The English text only replaces the words: sources, sizes and links stay as in projects.mjs.
 const media = (m, t) => (m && t ? { ...m, ...t } : m);
 const projectsEn = projectsPt.map((p) => {
@@ -132,10 +136,14 @@ projects.forEach((p) => {
   <meta property="og:title" content="${esc(p.name)} · Thomaz Barrago">
   <meta property="og:description" content="${esc(p.lead)}">
   <meta property="og:locale" content="${L.locale}">
-  <meta property="og:image" content="${up}assets/img/${cover}">
+  <meta property="og:url" content="${SITE}${pagePath[code](p.slug)}">
+  <meta property="og:image" content="${SITE}assets/img/${cover}">
   <meta property="og:image:alt" content="${esc((p.video ?? p.image).alt)}">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="alternate" hreflang="${L.otherHreflang}" href="${L.other(p.slug)}">
+  <link rel="canonical" href="${SITE}${pagePath[code](p.slug)}">
+  <link rel="alternate" hreflang="pt" href="${SITE}${pagePath.pt(p.slug)}">
+  <link rel="alternate" hreflang="en" href="${SITE}${pagePath.en(p.slug)}">
+  <link rel="alternate" hreflang="x-default" href="${SITE}${pagePath.pt(p.slug)}">
   <link rel="icon" href="${up}assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

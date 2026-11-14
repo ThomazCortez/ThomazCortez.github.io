@@ -18,7 +18,8 @@
   const alt = document.querySelector(`link[rel="alternate"][hreflang="${other}"]`);
   if (!go || !alt) return;
   root.classList.add('lang-redirect'); // hides the page and stops the boot screen (boot.js)
-  location.replace(alt.href + location.hash);
+  // hreflang links are absolute (the published site); keep the visitor on this origin, e.g. a local preview.
+  location.replace(new URL(alt.href).pathname + location.hash);
 })();
 
 (() => {
