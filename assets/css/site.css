@@ -177,11 +177,7 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
   transform: perspective(1600px) rotateX(5deg) rotateY(-24deg); /* the resting pose; the script takes over from here */
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.55);
 }
-.phone.is-3d::before, .phone.is-3d::after { content: none; }
-/* The screen stands a few px in front of the body: level with the phone's own metal background (z=0) and 1px from the first slab,
-   mobile GPUs (which sort the page tile by tile) drew the metal over the glass, whole or in bands. */
-.phone.is-3d > .phone__screen { transform: translateZ(4px); }
-.phone.is-3d { cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.phone.is-3d::before, .phone.is-3d::after { content: none; }.phone.is-3d { cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
 .phone.is-3d.is-dragging, .is-away .phone.is-3d { animation-play-state: paused; }
 .phone.is-3d.is-dragging { cursor: grabbing; }
 .phone-stage { position: relative; width: min(100%, 328px); }
@@ -203,6 +199,10 @@ a:hover .arrow, button:hover .arrow { transform: translateX(4px); }
   transform-origin: 0 50%; transform: rotateY(90deg); /* its shading is set in the script, to match the slabs */
 }
 .phone__wall--right { left: 100%; }
+/* Touch screens only (fewer slabs): the top and bottom edges, and the facets round each corner. */
+.phone__wall--top, .phone__wall--bottom { left: 55px; right: 55px; top: 0; bottom: auto; width: auto; height: 32px; transform-origin: 50% 0; transform: rotateX(-90deg); }
+.phone__wall--bottom { top: 100%; }
+.phone__facet { position: absolute; width: 32px; pointer-events: none; transform-origin: 0 50%; }
 /* The back: dark glass, two lenses, and the monogram on a dot display. */
 .phone__back { position: absolute; inset: 0; padding: 3px; border-radius: 55px; background: var(--phone-metal); transform-style: preserve-3d; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.45); }
 .phone__plate {

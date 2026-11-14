@@ -235,7 +235,10 @@ function buildStat(el) {
   const phone = document.querySelector('.phone');
   if (!phone || !CSS.supports('transform-style', 'preserve-3d')) return;
 
-  const SLABS = 32, GAP = 1; // 32px deep
+  // 32px deep either way. Every slab is a full-size layer, and on a phone's dense screen 32 of them ran past the
+  // graphics memory Android allows, so whole bands of the screen went undrawn; touch screens get 8 thicker ones.
+  const coarse = window.matchMedia('(pointer: coarse)').matches;
+  const SLABS = coarse ? 8 : 32, GAP = 32 / SLABS;
   // One titanium tone for the whole rail, by depth (0 at the front, 1 at the back): a flat band between two bright bevels.
   const shade = (t, dim = 1) => {
     const bevel = Math.max(Math.exp(-((t / 0.07) ** 2)), Math.exp(-(((1 - t) / 0.07) ** 2)));
@@ -262,10 +265,36 @@ function buildStat(el) {
   const walls = [el('i', 'phone__wall'), el('i', 'phone__wall phone__wall--right')];
   const rail = `linear-gradient(90deg, ${Array.from({ length: 17 }, (_, k) => shade(k / 16)).join(', ')})`;
   walls.forEach((w) => { w.style.background = rail; });
+  // With only 8 slabs, the rounded corners and the top and bottom edges show the gaps between them when seen
+  // edge-on, so on touch screens those are closed too: a flat wall along each, and 6 facets round each corner.
+  if (coarse) {
+    ['top', 'bottom'].forEach((side) => {
+      const w = el('i', `phone__wall phone__wall--${side}`);
+      w.style.background = rail.replace('90deg', '180deg');
+      walls.push(w);
+    });
+    const R = 55, K = 6, rad = Math.PI / 180;
+    [[180, '0px', '0px'], [270, '100%', '0px'], [0, '100%', '100%'], [90, '0px', '100%']].forEach(([from, x0, y0]) => {
+      const cx = x0 === '0px' ? R : -R, cy = y0 === '0px' ? R : -R; // the corner's centre, from the edge it belongs to
+      for (let k = 0; k < K; k++) {
+        const a1 = (from + (90 * k) / K) * rad, a2 = (from + (90 * (k + 1)) / K) * rad;
+        const x1 = cx + R * Math.cos(a1), y1 = cy + R * Math.sin(a1);
+        const x2 = cx + R * Math.cos(a2), y2 = cy + R * Math.sin(a2);
+        const len = Math.hypot(x2 - x1, y2 - y1) + 1; // 1px of overlap so no seam shows between facets
+        const f = el('i', 'phone__facet');
+        f.style.left = `calc(${x0} + ${((x1 + x2) / 2).toFixed(2)}px)`;
+        f.style.top = `calc(${y0} + ${((y1 + y2) / 2 - len / 2).toFixed(2)}px)`;
+        f.style.height = `${len.toFixed(2)}px`;
+        f.style.transform = `rotateZ(${Math.atan2(-(x2 - x1), y2 - y1).toFixed(4)}rad) rotateY(90deg)`;
+        f.style.background = rail;
+        walls.push(f);
+      }
+    });
+  }
   phone.prepend(back, ...walls, el('i', 'phone__key'), el('i', 'phone__key phone__key--power'));
 
   for (let i = SLABS; i >= 1; i--) {
-    const slab = el('i', 'phone__slab' + (i >= 12 && i <= 22 ? ' phone__slab--keys' : ''));
+    const slab = el('i', 'phone__slab' + (i * GAP >= 12 && i * GAP <= 22 ? ' phone__slab--keys' : ''));
     slab.style.transform = `translateZ(${-i * GAP}px)`;
     slab.style.background = shade((i - 0.5) / SLABS);
     slab.style.setProperty('--key', shade((i - 0.5) / SLABS, 0.72));
