@@ -71,12 +71,12 @@ function paragraphs(parts) {
 }
 
 // A picture inside the browser window used on the index cards (or bare, for a game).
-function shot(m, { dark = false, lazy = true, video = false } = {}) {
+function shot(m, { lazy = true, video = false } = {}) {
   const w = m.w ?? (video ? 1280 : 2880), h = m.h ?? (video ? 800 : 1800);
   const inner = video
     ? `<video src="${up}assets/video/${m.src}" poster="${up}assets/img/${m.poster}" width="${w}" height="${h}" muted loop playsinline preload="metadata" aria-label="${esc(m.alt)}"></video>`
     : `<img src="${up}assets/img/${m.src}" alt="${esc(m.alt)}" width="${w}" height="${h}"${lazy ? ' loading="lazy"' : ''}>`;
-  const cls = m.frame === false ? 'p-bare' : `work__shot${dark ? ' work__shot--dark' : ''}`;
+  const cls = m.frame === false ? 'p-bare' : 'work__shot';
   return `<div class="${cls}">${inner}</div>`;
 }
 
@@ -101,7 +101,7 @@ projects.forEach((p) => {
 
   // Pictures in the order they are used: the panel (when there is no video), the challenge, then the rest.
   const pics = [p.image, p.side, ...(p.gallery ?? [])].filter(Boolean);
-  const stageMedia = p.video ? shot(p.video, { dark: true, video: true }) : shot(pics.shift(), { dark: true, lazy: false });
+  const stageMedia = p.video ? shot(p.video, { video: true }) : shot(pics.shift(), { lazy: false });
   const introPic = pics.shift();
   const morePics = pics;
 
@@ -163,13 +163,13 @@ projects.forEach((p) => {
       <div class="hero__actions">
           ${actions}
       </div>
+      <dl class="p-facts">
+        ${facts}
+      </dl>
     </div>
   </div>
   <div class="p-stage" data-reveal>
     ${stageMedia}
-    <dl class="p-facts">
-        ${facts}
-    </dl>
   </div>
 </div>
 
@@ -208,7 +208,7 @@ ${built ? `
 
 <nav class="p-next-wrap" aria-label="${s.next}">
   <a class="p-next" href="${next.slug}.html">
-    <span class="p-next__media"><img src="${up}assets/img/${nextPoster}" alt="" width="1280" height="800" loading="lazy"></span>
+    <span class="p-next__media work__shot"><img src="${up}assets/img/${nextPoster}" alt="" width="1280" height="800" loading="lazy"></span>
     <span class="p-next__body">
       <span class="p-next__label">${s.next}</span>
       <span class="p-next__name">${esc(next.name)}</span>

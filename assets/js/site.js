@@ -465,10 +465,10 @@ document.querySelectorAll('[data-carousel]').forEach((root) => {
   go(0);
 });
 
-/* ---------- Halftone behind the phone: dots on a tilted grid, sized by slow diagonal waves ----------
+/* ---------- Halftone behind the phone, and behind the project on its own page: dots on a tilted grid, sized by slow diagonal waves ----------
    Drawn by a fragment shader, so a frame costs one draw call however many dots there are.
    The waves drift on their own and the dots swell a little under the pointer. */
-document.querySelectorAll('.top__matrix').forEach((host) => {
+document.querySelectorAll('.top__matrix, .p-stage').forEach((host) => {
   const canvas = document.createElement('canvas');
   canvas.className = 'halftone';
   canvas.setAttribute('aria-hidden', 'true');
