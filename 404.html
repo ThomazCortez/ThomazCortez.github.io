@@ -11,6 +11,16 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:ROND,wght@100,900&family=Host+Grotesk:wght@400;500&display=swap">
   <link rel="stylesheet" href="/assets/css/site.css">
+  <script>
+    // Same theme as the rest of the site (assets/js/theme.js): the visitor's choice, or the system's.
+    (() => {
+      let t = null;
+      try { t = localStorage.getItem('theme'); } catch {}
+      if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = t;
+      if (t === 'dark') document.querySelector('meta[name="theme-color"]').content = '#181817';
+    })();
+  </script>
   <style>
     /* Served by GitHub Pages at any missing path, so every link here is absolute. */
     .nf { min-height: 100svh; display: flex; flex-direction: column; padding: 0 var(--gutter); }

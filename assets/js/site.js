@@ -504,7 +504,8 @@ document.querySelectorAll('.top__matrix, .p-stage').forEach((host) => {
   host.prepend(canvas);
   const STEP = 9;                       // grid pitch in CSS px
   const TILT = -14 * Math.PI / 180;     // grid rotation
-  const ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#121212';
+  // The dots' colour follows the theme, so it is read again whenever the theme changes (theme.js).
+  const ink = () => getComputedStyle(document.documentElement).getPropertyValue('--halftone').trim() || '#121212';
   let w = 0, h = 0, dpr = 1, ox = 0, oy = 0;
 
   const size = () => {
@@ -525,7 +526,7 @@ document.querySelectorAll('.top__matrix, .p-stage').forEach((host) => {
       size();
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = ink;
+      ctx.fillStyle = ink();
       ctx.beginPath();
       const reach = Math.ceil((Math.hypot(w, h) / 2 + STEP) / STEP) * STEP, cx = w / 2, cy = h / 2;
       for (let v = -reach; v <= reach; v += STEP) {
@@ -543,6 +544,7 @@ document.querySelectorAll('.top__matrix, .p-stage').forEach((host) => {
     };
     still();
     new ResizeObserver(still).observe(host);
+    document.addEventListener('themechange', still);
     return;
   }
 
@@ -576,11 +578,11 @@ document.querySelectorAll('.top__matrix, .p-stage').forEach((host) => {
       a *= clamp(p.x / (uSize.x * 0.38), 0.0, 1.0);                             // fades out toward the hero text
       gl_FragColor = vec4(uInk * a, a);
     }`;
-  const rgb = (() => {
+  const rgb = () => {
     const c = document.createElement('canvas').getContext('2d');
-    c.fillStyle = ink; c.fillRect(0, 0, 1, 1);
+    c.fillStyle = ink(); c.fillRect(0, 0, 1, 1);
     return [...c.getImageData(0, 0, 1, 1).data].slice(0, 3).map((n) => n / 255);
-  })();
+  };
 
   let U = null;
   const setup = () => {
@@ -597,7 +599,7 @@ document.querySelectorAll('.top__matrix, .p-stage').forEach((host) => {
     gl.enableVertexAttribArray(0);
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     U = Object.fromEntries(['uSize', 'uDpr', 'uTime', 'uPull', 'uMouse', 'uInk'].map((n) => [n, gl.getUniformLocation(prog, n)]));
-    gl.uniform3fv(U.uInk, rgb);
+    gl.uniform3fv(U.uInk, rgb());
     return true;
   };
   if (!setup()) { canvas.remove(); return; }
@@ -630,6 +632,7 @@ document.querySelectorAll('.top__matrix, .p-stage').forEach((host) => {
 
   size(); draw();
   new ResizeObserver(() => { size(); draw(); }).observe(host);
+  document.addEventListener('themechange', () => { if (U) { gl.uniform3fv(U.uInk, rgb()); draw(); } });
   canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); U = null; });
   canvas.addEventListener('webglcontextrestored', () => { if (setup()) draw(); });
   if (reduceMotion) return;
